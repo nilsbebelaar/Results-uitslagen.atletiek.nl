@@ -31,17 +31,14 @@
 # Installing
 1. Clone the repo
 ```
-git clone https://github.com/nilsbebelaar/Uitslagen-Atletiek.nl
+git clone https://github.com/nilsbebelaar/Results-uitslagen.atletiek.nl
 ```
-2. Create a virtual environment to install the required libraries (optional)
+2. Create and activate a virtual environment to install the required libraries (optional)(asuming a Powershell terminal)
 ```Powershell
 python -m venv .venv
-```
-3. Activate the virtual environment (asuming a Powershell terminal)
-```Powershell
 .\.venv\Scrips\Activate.ps1
 ```
-4. Install the libraries
+3. Install the libraries
 ```Powershell
 pip install -r .\requirements.txt
 ```
