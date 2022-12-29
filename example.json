@@ -1,0 +1,42 @@
+[
+  {
+    "bib": "111",
+    "birthyear": "2000",
+    "category":"M55",
+    "club": "Association Name",
+    "gender":"male",
+    "name": "Full Name",
+    "results": [
+      {
+        "event": "60m",
+        "result": "9,99",
+        "url": "https://uitslagen.atletiek.nl/Competitions/CurrentList/xxxxx/xxxx"
+      },
+      {
+        "event": "50m Horden",
+        "result": "10,50",
+        "url": "https://uitslagen.atletiek.nl/Competitions/CurrentList/xxxxx/xxxx"
+      },
+      {
+        "event": "Hoogspringen",
+        "result": "1,10",
+        "url": "https://uitslagen.atletiek.nl/Competitions/CurrentList/xxxxx/xxxx"
+      }
+    ]
+  },
+  {
+    "bib": "112",
+    "birthyear": "1965",
+    "category":"U18V",
+    "club": "Association Name",
+    "gender":"female",
+    "name": "Full Name",
+    "results": [
+      {
+        "event": "50m Horden",
+        "result": "9,50",
+        "url": "https://uitslagen.atletiek.nl/Competitions/CurrentList/xxxxx/xxxx"
+      }
+    ]
+  }
+]
