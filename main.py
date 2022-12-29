@@ -6,13 +6,14 @@ import json
 COMP_ID = 8702
 BASE_URL = 'https://uitslagen.atletiek.nl'
 
+
 def main():
     resultlists = get_resultlists(COMP_ID)
     competitors = get_competitors(COMP_ID)
     competitors = find_results(resultlists, competitors)
 
     json_string = json.dumps(competitors)
-    pyperclip.copy(json_string) #Copy the json to clipboard
+    pyperclip.copy(json_string)  # Copy the json to clipboard
     print(json_string)
 
 
@@ -82,12 +83,14 @@ def get_resultlists(competition_id):
     session.close()
     return resultlists
 
-#THIS NEEDS EXTRA WORK
+
+# THIS NEEDS EXTRA WORK
 def parse_event_name(event_name):
     if event_name.split()[1] == 'Horden':
         return ' '.join(event_name.split()[:2])
     else:
         return event_name.split()[0]
+
 
 if __name__ == '__main__':
     main()
