@@ -30,6 +30,7 @@ def find_results(resultlists, competitors):
                     competitor['results'].append({
                         'event': resultlist['event_name'],
                         'result': result['result'],
+                        'url': resultlist['url_result']
                     })
 
     return competitors
