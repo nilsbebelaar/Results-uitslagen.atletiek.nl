@@ -2,9 +2,9 @@
   {
     "bib": "111",
     "birthyear": "2000",
-    "category":"M55",
+    "category": "M55",
     "club": "Association Name",
-    "gender":"male",
+    "gender": "male",
     "name": "Full Name",
     "results": [
       {
@@ -27,9 +27,9 @@
   {
     "bib": "112",
     "birthyear": "1965",
-    "category":"U18V",
+    "category": "U18V",
     "club": "Association Name",
-    "gender":"female",
+    "gender": "female",
     "name": "Full Name",
     "results": [
       {
