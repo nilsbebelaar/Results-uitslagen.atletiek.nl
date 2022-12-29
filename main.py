@@ -7,6 +7,7 @@ from categories import category_to_gender, category_to_hurdleheight
 
 COMP_TYPE = 'indoor'
 COMP_ID = 8702
+
 BASE_URL = 'https://uitslagen.atletiek.nl'
 headers = {'accept-language': 'nl'}
 
@@ -17,11 +18,17 @@ def main():
     competition = get_registrations(competition)
     competition = find_results(competition)
 
-    json_string = json.dumps(competitors)
-    pyperclip.copy(json_string)  # Copy the json to clipboard
-    print(json_string)
+    # Create JSON from competition['competitors']
+    json_string = json.dumps(competition['competitors'], sort_keys=True, indent=2, ensure_ascii=False)
+    # Copy JSON to clipboard for easy pasting
+    pyperclip.copy(json_string)
 
+    # Export JSON to file in /export directory
+    filename = f"export/export_{competition['id']}.json"
+    with open(filename, 'w') as outfile:
+        outfile.write(json_string)
 
+    print(f"{competition['name']} was exported to {filename} and copied to clipboard.")
 
 
 def find_results(competition):
@@ -47,7 +54,7 @@ def find_results(competition):
                         # Temp hack for linking in atletiek.nu
                         'event-category': f"{parse_event_name(resultlist['event_name_raw'], competitor['category'])} {competitor['category']}"
                     })
-                    competitor['SELTECLOOKUP'] = "1" #Empty field needed because tussenvoegsels are not published
+                    competitor['SELTECLOOKUP'] = "1"  # Empty field needed because tussenvoegsels are not published
                     competition['competitors'].append(competitor)
     return competition
 
