@@ -7,6 +7,7 @@ from categories import category_to_gender
 COMP_TYPE = 'indoor'
 COMP_ID = 8702
 BASE_URL = 'https://uitslagen.atletiek.nl'
+headers = {'accept-language': 'nl'}
 
 
 def main():
@@ -45,10 +46,11 @@ def get_registrations(competition):
     url = BASE_URL + '/Competitions/Competitoroverview/' + str(competition['id'])
     session = requests.session()
 
-    soup = BeautifulSoup(session.get(url).text, 'html.parser')
+    # Page with all registrations of the competition
+    page_registrations = BeautifulSoup(session.get(url, headers=headers).text, 'html.parser')
 
-    for line in soup.find('div', {'class': 'blocktable'}).find_all('div', {'class': 'entryline'}):
     competition['registrations'] = []
+    for line in page_registrations.find('div', {'class': 'blocktable'}).find_all('div', {'class': 'entryline'}):
         competitor = {}
         competitor['bib'] = line.find('div', {'class': 'col-1'}).find('div', {'class': 'firstline'}).text.strip()
         competitor['name'] = line.find('div', {'class': 'col-2'}).find('div', {'class': 'firstline'}).text.strip()
@@ -65,7 +67,8 @@ def get_resultlists(competition):
     url = BASE_URL + '/Competitions/Details/' + str(competition['id'])
     session = requests.session()
 
-    page_competition = BeautifulSoup(session.get(url).text, 'html.parser')
+    # Page with competition information and all result lists
+    page_competition = BeautifulSoup(session.get(url, headers=headers).text, 'html.parser')
 
 
     competition['resultlists'] = []
@@ -79,8 +82,9 @@ def get_resultlists(competition):
             competition['resultlists'].append({'url_result': result_url, 'url_registrations': register_url})
 
     for resultlist in competition['resultlists']:
+        # Page with the result list
+        page_result = BeautifulSoup(session.get(resultlist['url_result'], headers=headers).text, 'html.parser')
 
-        page_result = BeautifulSoup(session.get(resultlist['url_result']).text, 'html.parser')
 
         # Name of resultlist is part of <div class="leftheader">
         resultlist['event_name'] = parse_event_name(page_result.find('div', {'class': 'leftheader'}).text.strip())
@@ -98,7 +102,7 @@ def get_resultlists(competition):
             resultlist['results'].append(result)
 
         # Competitor categories are only shown on the registration page
-        page_registrations = BeautifulSoup(session.get(resultlist['url_registrations']).text, 'html.parser')
+        page_registrations = BeautifulSoup(session.get(resultlist['url_registrations'], headers=headers).text, 'html.parser')
         for result in resultlist['results']:
             # Check each result
             for line in page_registrations.find_all('div', {"class": "entryline"}):
