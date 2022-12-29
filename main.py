@@ -1,4 +1,5 @@
 import requests
+import pyperclip
 from bs4 import BeautifulSoup
 import json
 
@@ -11,6 +12,7 @@ def main():
     competitors = find_results(resultlists, competitors)
 
     json_string = json.dumps(competitors)
+    pyperclip.copy(json_string) #Copy the json to clipboard
     print(json_string)
 
 
