@@ -1,7 +1,7 @@
 # Results uitslagen.atletiek.nl
  Parse data from [uitslagen.atletiek.nl](https://uitslagen.atletiek.nl)
 
- This program loads all the results and competitors for a given competition ID. It outputs a JSON formatted string that contains a list of all competitors:
+ This program loads all the results and competitors for a given competition ID. It outputs a JSON formatted string that contains a list of all competitors, also see [example.json](example.json). The JSON string is also automatically copied to clipboard.
 
  ```json
 [
