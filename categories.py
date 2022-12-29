@@ -1,6 +1,6 @@
 # List of all possible categories in Volta, and their corresponing gender
 def category_to_gender(category):
-    categories = {
+    lookup = {
         'U8J': 'male',
         'U8M': 'female',
         'U9J': 'male',
@@ -174,7 +174,111 @@ def category_to_gender(category):
         'SenMix': 'mixed',
         'MasMix': 'mixed'
     }
-    if category in categories:
-        return categories[category]
+    if category in lookup:
+        return lookup[category]
     else:
         return 'Unknown'
+
+
+# List of hurdle heights per category
+def category_to_hurdleheight(category, distance=''):
+    distance = str(distance)
+    category = category.replace('-1', '').replace('-2', '')
+    if distance == '200' or distance == '300' or distance == '400':
+        lookup_value = category + '-' + str(distance)
+    else:
+        lookup_value = category
+
+    lookup = {
+        'U14J': '76cm',  # WR p.289
+        'U16J': '84cm',
+        'U14J-300': '76cm',
+        'U16J-300': '76cm',
+
+        'U14M': '76cm',
+        'U16M': '76cm',
+        'U14M-300': '76cm',
+        'U16M-300': '76cm',
+
+
+        'U18M': '91cm',  # WR p.124
+        'U20M': '99cm',
+        'U23M': '107cm',
+        'SENM': '107cm',
+        'U18M-400': '84cm',
+        'U20M-400': '91cm',
+        'U23M-400': '91cm',
+        'SENM-400': '91cm',
+
+        'U18V': '76cm',
+        'U20V': '84cm',
+        'U23V': '84cm',
+        'SENV': '84cm',
+        'U18V-400': '76cm',
+        'U20V-400': '76cm',
+        'U23V-400': '76cm',
+        'SENV-400': '76cm',
+
+
+        'M35': '99cm',  # WR p.274/275
+        'M40': '99cm',
+        'M45': '99cm',
+        'M50': '91cm',
+        'M55': '91cm',
+        'M60': '84cm',
+        'M65': '84cm',
+        'M70': '76cm',
+        'M75': '76cm',
+        'M80': '69cm',
+        'M85': '69cm',
+        'M90': '69cm',
+        'M95': '69cm',
+        'M100': '69cm',
+        'M35-400': '91cm',  # WR p.274/275
+        'M40-400': '91cm',
+        'M45-400': '91cm',
+        'M50-400': '84cm',
+        'M55-400': '84cm',
+        'M60-300': '76cm',
+        'M65-300': '76cm',
+        'M70-300': '69cm',
+        'M75-300': '69cm',
+        'M80-200': '69cm',
+        'M85-200': '69cm',
+        'M90-200': '69cm',
+        'M95-200': '69cm',
+        'M100-200': '69cm',
+
+        'V35': '84cm',
+        'V40': '76cm',
+        'V45': '76cm',
+        'V50': '76cm',
+        'V55': '76cm',
+        'V60': '69cm',
+        'V65': '69cm',
+        'V70': '69cm',
+        'V75': '69cm',
+        'V80': '69cm',
+        'V85': '69cm',
+        'V90': '69cm',
+        'V95': '69cm',
+        'V100': '69cm',
+        'V35-400': '76cm',
+        'V40-400': '76cm',
+        'V45-400': '76cm',
+        'V50-300': '76cm',
+        'V55-300': '76cm',
+        'V60-300': '69cm',
+        'V65-300': '69cm',
+        'V70-200': '69cm',
+        'V75-200': '69cm',
+        'V80-200': '69cm',
+        'V85-200': '69cm',
+        'V90-200': '69cm',
+        'V95-200': '69cm',
+        'V100-200': '69cm'
+    }
+    if lookup_value in lookup:
+        return ' ' + lookup[lookup_value]
+    else:
+        return ''

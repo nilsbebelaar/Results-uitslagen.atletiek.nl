@@ -2,7 +2,7 @@ import requests
 import pyperclip
 from bs4 import BeautifulSoup
 import json
-from categories import category_to_gender
+from categories import category_to_gender, category_to_hurdleheight
 
 COMP_TYPE = 'indoor'
 COMP_ID = 8702
@@ -34,7 +34,7 @@ def find_results(competition):
                     competitor['category'] = result['category']
                     competitor['gender'] = result['gender']
                     competitor['results'].append({
-                        'event': resultlist['event_name'],
+                        'event': parse_event_name(resultlist['event_name_raw'], competitor['category']),
                         'result': result['result'],
                         'url': resultlist['url_result']
                     })
@@ -117,11 +117,13 @@ def get_resultlists(competition):
 
 
 # THIS NEEDS EXTRA WORK
-def parse_event_name(event_name):
-    if event_name.split()[1] == 'Horden':
-        return ' '.join(event_name.split()[:2])
+def parse_event_name(event_name, category):
+    event_name_splitted = event_name.lower().split()
+    if event_name_splitted[1] == 'horden':
+        distance = event_name_splitted[0][:-1]
+        return ' '.join(event_name_splitted[:2]) + category_to_hurdleheight(category, distance)
     else:
-        return event_name.split()[0]
+        return event_name_splitted[0]
 
 
 if __name__ == '__main__':
