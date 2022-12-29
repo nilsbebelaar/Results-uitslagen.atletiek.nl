@@ -52,7 +52,7 @@ pip install -r .\requirements.txt
 
 # Usage
 1. Edit the `COMP_ID` on line 5 of `main.py` to the ID of the desired competition.
-2. Run the program, the JSON output will be printed out to the terminal.
+2. Run the program, the JSON output will be printed out to the terminal and copied to clipboard.
 ```Powershell
 python main.py
 ```
