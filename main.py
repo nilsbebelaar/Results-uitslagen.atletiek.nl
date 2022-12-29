@@ -31,6 +31,11 @@ def find_results(competition):
             for competitor in competition['registrations']:
                 # If a competitor's bib-number exists in the results, append the result to the competitor['results'] list
                 if result['bib'] == competitor['bib']:
+                    competitor['competition'] = {
+                        'name': competition['name'],
+                        'location': competition['location'],
+                        'type': competition['type']
+                    }
                     competitor['category'] = result['category']
                     competitor['gender'] = result['gender']
                     competitor['results'].append({
@@ -70,6 +75,14 @@ def get_resultlists(competition):
     # Page with competition information and all result lists
     page_competition = BeautifulSoup(session.get(url, headers=headers).text, 'html.parser')
 
+    title = page_competition.find('h1').text.strip()
+    # Competition name is stored after the date, but some competitions are split over multiple days:
+    # 1: '18 dec 2022 <name> - <city>'
+    # 2: '08 - 09 okt 2022 <name> - <city>'
+    # So we check for the '-' at index [3], and we rfind() the last '-' to get its index, we can then extract the name
+    split_index = title.rfind('-')
+    competition['name'] = title[17:split_index-1] if title[3] == '-' else title[12:split_index-1].strip()
+    competition['location'] = title[split_index+1:].strip()
 
     competition['resultlists'] = []
     # Find all result lists
@@ -85,9 +98,9 @@ def get_resultlists(competition):
         # Page with the result list
         page_result = BeautifulSoup(session.get(resultlist['url_result'], headers=headers).text, 'html.parser')
 
+        # Name of result list is part of <div class="leftheader">
+        resultlist['event_name_raw'] = page_result.find('div', {'class': 'leftheader'}).text.strip()
 
-        # Name of resultlist is part of <div class="leftheader">
-        resultlist['event_name'] = parse_event_name(page_result.find('div', {'class': 'leftheader'}).text.strip())
 
         resultlist['results'] = []
         # Each result is saved in a new <div class="entryline">
