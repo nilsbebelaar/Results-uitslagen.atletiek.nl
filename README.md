@@ -5,26 +5,30 @@
 
  ```json
 [
-   {
-      "bib":"111",
-      "name":"Full Name",
-      "club":"Association Name",
-      "birthyear":"2000",
-      "results":[
-         {
-            "event":"60m",
-            "result":"9,99"
-         },
-         {
-            "event":"50m Horden",
-            "result":"10,50"
-         },
-         {
-            "event":"Hoogspringen",
-            "result":"1,10"
-         }
-      ]
-   }
+  {
+    "bib": "111",
+    "name": "Full Name",
+    "club": "Association Name",
+    "birthyear": "2000",
+    "results": [
+      {
+        "event": "60m",
+        "result": "9,99"
+      },
+      {
+        "event": "50m Horden",
+        "result": "10,50"
+      },
+      {
+        "event": "Hoogspringen",
+        "result": "1,10"
+      }
+    ]
+  },
+  {
+    "bib": "112"
+    ...
+  }
 ]
 ```
 
