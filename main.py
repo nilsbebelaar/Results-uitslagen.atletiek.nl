@@ -2,6 +2,7 @@ import requests
 import pyperclip
 from bs4 import BeautifulSoup
 import json
+from datetime import datetime
 from categories import category_to_gender, category_to_hurdleheight
 
 COMP_TYPE = 'indoor'
@@ -41,7 +42,8 @@ def find_results(competition):
                     competitor['results'].append({
                         'event': parse_event_name(resultlist['event_name_raw'], competitor['category']),
                         'result': result['result'],
-                        'url': resultlist['url_result']
+                        'url': resultlist['url_result'],
+                        'date': datetime.strftime(resultlist['date'], '%d-%m-%Y'),
                     })
                     competition['competitors'].append(competitor)
     return competition
@@ -101,6 +103,9 @@ def get_resultlists(competition):
         # Name of result list is part of <div class="leftheader">
         resultlist['event_name_raw'] = page_result.find('div', {'class': 'leftheader'}).text.strip()
 
+        # Find the date of the result list
+        date_string = page_result.find('div', {'class': 'listheader'}).find_all('div')[-1].text.strip()[:10]
+        resultlist['date'] = datetime.strptime(date_string, "%d.%m.%Y")
 
         resultlist['results'] = []
         # Each result is saved in a new <div class="entryline">
