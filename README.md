@@ -7,21 +7,24 @@
 [
   {
     "bib": "111",
-    "name": "Full Name",
-    "club": "Association Name",
     "birthyear": "2000",
+    "club": "Association Name",
+    "name": "Full Name",
     "results": [
       {
         "event": "60m",
-        "result": "9,99"
+        "result": "9,99",
+        "url": "https://uitslagen.atletiek.nl/Competitions/CurrentList/xxxxx/xxxx"
       },
       {
         "event": "50m Horden",
-        "result": "10,50"
+        "result": "10,50",
+        "url": "https://uitslagen.atletiek.nl/Competitions/CurrentList/xxxxx/xxxx"
       },
       {
         "event": "Hoogspringen",
-        "result": "1,10"
+        "result": "1,10",
+        "url": "https://uitslagen.atletiek.nl/Competitions/CurrentList/xxxxx/xxxx"
       }
     ]
   },
