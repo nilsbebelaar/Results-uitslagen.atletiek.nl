@@ -6,41 +6,61 @@
  ```json
 [
   {
+    "SELTECLOOKUP": "1",
     "bib": "111",
     "birthyear": "2000",
     "category": "M55",
     "club": "Association Name",
+    "competition": {
+      "location": "City",
+      "name": "Competition Title",
+      "type": "indoor"
+    },
     "gender": "male",
     "name": "Full Name",
     "results": [
       {
+        "date": "18-12-2022",
         "event": "60m",
+        "event-category": "60m M55",
         "result": "9,99",
         "url": "https://uitslagen.atletiek.nl/Competitions/CurrentList/xxxxx/xxxx"
       },
       {
+        "date": "18-12-2022",
         "event": "50m Horden",
+        "event-category": "50m horden 91cm M55",
         "result": "10,50",
         "url": "https://uitslagen.atletiek.nl/Competitions/CurrentList/xxxxx/xxxx"
       },
       {
-        "event": "Hoogspringen",
+        "date": "18-12-2022",
+        "event": "hoogspringen",
+        "event-category": "hoogspringen M55",
         "result": "1,10",
         "url": "https://uitslagen.atletiek.nl/Competitions/CurrentList/xxxxx/xxxx"
       }
     ]
   },
   {
+    "SELTECLOOKUP": "1",
     "bib": "112",
-    "birthyear": "1965",
+    "birthyear": "2000",
     "category": "U18V",
     "club": "Association Name",
+    "competition": {
+      "location": "City",
+      "name": "Competition Title",
+      "type": "outdoor"
+    },
     "gender": "female",
     "name": "Full Name",
     "results": [
       {
-        "event": "50m Horden",
-        "result": "9,50",
+        "date": "18-12-2022",
+        "event": "60m",
+        "event-category": "60m U18V",
+        "result": "10,50",
         "url": "https://uitslagen.atletiek.nl/Competitions/CurrentList/xxxxx/xxxx"
       }
     ]
@@ -58,14 +78,14 @@ git clone https://github.com/nilsbebelaar/Results-uitslagen.atletiek.nl
 python -m venv .venv
 .\.venv\Scrips\Activate.ps1
 ```
-3. Install the libraries
+3. Install the required libraries
 ```Powershell
 pip install -r .\requirements.txt
 ```
 
 # Usage
-1. Edit the `COMP_ID` on line 5 of `main.py` to the ID of the desired competition.
-2. Run the program, the JSON output will be printed out to the terminal and copied to clipboard.
+1. Edit the `COMP_ID` and `COMP_TYPE` on line 8 and 9 of `main.py` to the ID and TYPE (indoor/outdoor) of the desired competition.
+2. Run the program, the JSON will be exported to a file: `/export/export_<ID>.json`. JSON is also copied to clipboard automatically.
 ```Powershell
 python main.py
 ```
