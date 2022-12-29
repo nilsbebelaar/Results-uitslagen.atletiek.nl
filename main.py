@@ -19,6 +19,7 @@ def main():
 
 
 def find_results(resultlists, competitors):
+    competitors_list = []
     for resultlist in resultlists:
         for result in resultlist['results']:
             # For every result, loop through all competitors
@@ -32,8 +33,8 @@ def find_results(resultlists, competitors):
                         'result': result['result'],
                         'url': resultlist['url_result']
                     })
-
-    return competitors
+                    competitors_list.append(dict(sorted(competitor.items())))
+    return competitors_list
 
 
 def get_competitors(competition_id):
