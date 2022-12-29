@@ -8,7 +8,9 @@
   {
     "bib": "111",
     "birthyear": "2000",
+    "category":"M55",
     "club": "Association Name",
+    "gender":"male",
     "name": "Full Name",
     "results": [
       {
@@ -29,8 +31,19 @@
     ]
   },
   {
-    "bib": "112"
-    ...
+    "bib": "112",
+    "birthyear": "1965",
+    "category":"U18V",
+    "club": "Association Name",
+    "gender":"female",
+    "name": "Full Name",
+    "results": [
+      {
+        "event": "50m Horden",
+        "result": "9,50",
+        "url": "https://uitslagen.atletiek.nl/Competitions/CurrentList/xxxxx/xxxx"
+      }
+    ]
   }
 ]
 ```
