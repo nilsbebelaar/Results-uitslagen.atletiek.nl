@@ -93,15 +93,25 @@ def get_resultlists(competition):
     competition['name'] = title[17:split_index-1] if title[3] == '-' else title[12:split_index-1].strip()
     competition['location'] = title[split_index+1:].strip()
 
+    days = 1
+    ul = page_competition.find('div', {'id': 'EventMenuHeader'}).find_all('li')
+    # Find the last link in the header with 'Dag ', and get its number
+    for li in ul:
+        if li.a:
+            if li.a.text.strip()[0:4] == 'Dag ':
+                days = int(li.a.text.strip()[4])
+
     competition['resultlists'] = []
-    # Find all result lists
-    for block in page_competition.find_all('div', {'class': 'blockcontent'}):
-        for a in block.find_all('a'):
-            result_url = BASE_URL + a['href']
-            register_url = result_url.replace('CurrentList', 'RegisterList')
-            # Save the result url as well as the url with all registrations
-            # Registrations are needed as the catergory is not visible on the results page
-            competition['resultlists'].append({'url_result': result_url, 'url_registrations': register_url})
+    # Find all result lists, for each day
+    for day in range(days):
+        page_competition = BeautifulSoup(session.get(url + '/' + str(day + 1), headers=headers).text, 'html.parser')
+        for block in page_competition.find_all('div', {'class': 'blockcontent'}):
+            for a in block.find_all('a'):
+                result_url = BASE_URL + a['href']
+                register_url = result_url.replace('CurrentList', 'RegisterList')
+                # Save the result url as well as the url with all registrations
+                # Registrations are needed as the catergory is not visible on the results page
+                competition['resultlists'].append({'url_result': result_url, 'url_registrations': register_url})
 
     for resultlist in competition['resultlists']:
         # Page with the result list
