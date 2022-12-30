@@ -53,6 +53,8 @@ def find_results(competition):
                     })
                     competitor['SELTECLOOKUP'] = "1"  # Empty field needed because tussenvoegsels are not published
 
+    # Remove competitors if the have no results
+    competition['competitors'] = [competitor for competitor in competition['competitors'] if competitor['results']]
 
 
 def get_competitors(competition):
