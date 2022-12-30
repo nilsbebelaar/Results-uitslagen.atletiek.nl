@@ -14,9 +14,9 @@ headers = {'accept-language': 'nl'}
 
 def main():
     competition = {'id': COMP_ID, 'type': COMP_TYPE}
-    competition = get_resultlists(competition)
-    competition = get_registrations(competition)
-    competition = find_results(competition)
+    get_resultlists(competition)
+    get_competitors(competition)
+    find_results(competition)
 
     # Create JSON from competition['competitors']
     json_string = json.dumps(competition['competitors'], sort_keys=True, indent=2, ensure_ascii=False)
@@ -32,13 +32,12 @@ def main():
 
 
 def find_results(competition):
-    competition['competitors'] = []
-    for resultlist in competition['resultlists']:
-        for result in resultlist['results']:
-            # For every result, loop through all competitors
-            for competitor in competition['registrations']:
+    for competitor in competition['competitors']:
+        # For every competitor, loop through all results
+        for resultlist in competition['resultlists']:
+            for result in resultlist['results']:
                 # If a competitor's bib-number exists in the results, append the result to the competitor['results'] list
-                if result['bib'] == competitor['bib']:
+                if competitor['bib'] == result['bib']:
                     competitor['competition'] = {
                         'name': competition['name'],
                         'location': competition['location'],
@@ -53,18 +52,17 @@ def find_results(competition):
                         'date': datetime.strftime(resultlist['date'], '%d-%m-%Y'),
                     })
                     competitor['SELTECLOOKUP'] = "1"  # Empty field needed because tussenvoegsels are not published
-                    competition['competitors'].append(competitor)
-    return competition
 
 
-def get_registrations(competition):
+
+def get_competitors(competition):
     url = BASE_URL + '/Competitions/Competitoroverview/' + str(competition['id'])
     session = requests.session()
 
     # Page with all registrations of the competition
     page_registrations = BeautifulSoup(session.get(url, headers=headers).text, 'html.parser')
 
-    competition['registrations'] = []
+    competition['competitors'] = []
     for line in page_registrations.find('div', {'class': 'blocktable'}).find_all('div', {'class': 'entryline'}):
         competitor = {}
         competitor['bib'] = line.find('div', {'class': 'col-1'}).find('div', {'class': 'firstline'}).text.strip()
@@ -72,10 +70,9 @@ def get_registrations(competition):
         competitor['club'] = line.find('div', {'class': 'col-2'}).find('div', {'class': 'secondline'}).text.strip()
         competitor['birthyear'] = line.find('div', {'class': 'col-42p'}).find('div', {'class': 'secondline'}).text.strip()
         competitor['results'] = []
-        competition['registrations'].append(competitor)
+        competition['competitors'].append(competitor)
 
     session.close()
-    return competition
 
 
 def get_resultlists(competition):
@@ -139,7 +136,6 @@ def get_resultlists(competition):
                     result['gender'] = category_to_gender(result['category'])
 
     session.close()
-    return competition
 
 
 # THIS NEEDS EXTRA WORK
