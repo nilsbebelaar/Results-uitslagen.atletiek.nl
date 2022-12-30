@@ -21,22 +21,19 @@
     "results": [
       {
         "date": "18-12-2022",
-        "event": "60m",
-        "event-category": "60m M55",
-        "result": "9,99",
-        "url": "https://uitslagen.atletiek.nl/Competitions/CurrentList/xxxxx/xxxx"
-      },
-      {
-        "date": "18-12-2022",
-        "event": "50m Horden",
-        "event-category": "50m horden 91cm M55",
+        "event": "50m horden 91cm",
         "result": "10,50",
         "url": "https://uitslagen.atletiek.nl/Competitions/CurrentList/xxxxx/xxxx"
       },
       {
         "date": "18-12-2022",
+        "event": "60m",
+        "result": "9,99",
+        "url": "https://uitslagen.atletiek.nl/Competitions/CurrentList/xxxxx/xxxx"
+      },
+      {
+        "date": "18-12-2022",
         "event": "hoogspringen",
-        "event-category": "hoogspringen M55",
         "result": "1,10",
         "url": "https://uitslagen.atletiek.nl/Competitions/CurrentList/xxxxx/xxxx"
       }
@@ -59,7 +56,6 @@
       {
         "date": "18-12-2022",
         "event": "60m",
-        "event-category": "60m U18V",
         "result": "10,50",
         "url": "https://uitslagen.atletiek.nl/Competitions/CurrentList/xxxxx/xxxx"
       }

@@ -51,8 +51,6 @@ def find_results(competition):
                         'result': result['result'],
                         'url': resultlist['url_result'],
                         'date': datetime.strftime(resultlist['date'], '%d-%m-%Y'),
-                        # Temp hack for linking in atletiek.nu
-                        'event-category': f"{parse_event_name(resultlist['event_name_raw'], competitor['category'])} {competitor['category']}"
                     })
                     competitor['SELTECLOOKUP'] = "1"  # Empty field needed because tussenvoegsels are not published
                     competition['competitors'].append(competitor)
