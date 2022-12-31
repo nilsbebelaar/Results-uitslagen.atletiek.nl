@@ -3,7 +3,7 @@ import pyperclip
 from bs4 import BeautifulSoup
 import json
 from datetime import datetime
-from categories import category_to_gender, category_to_hurdleheight
+from categories import category_to_gender, category_to_hurdleheight, category_to_weight
 
 COMP_TYPE = 'indoor'
 COMP_ID = 8702
@@ -156,6 +156,9 @@ def parse_event_name(event_name, category, birthyear):
     if event_name_splitted[1] == 'horden':
         distance = event_name_splitted[0][:-1]
         return ' '.join(event_name_splitted[:2]) + category_to_hurdleheight(category, distance, birthyear)
+    elif event_name_splitted[0] in ['kogelstoten', 'speerwerpen', 'gewichtwerpen', 'kogelslingeren', 'discuswerpen']:
+        distance = event_name_splitted[0][:-1]
+        return ' '.join(event_name_splitted[:1]) + category_to_weight(event_name_splitted[0], category, birthyear)
     else:
         return event_name_splitted[0]
 

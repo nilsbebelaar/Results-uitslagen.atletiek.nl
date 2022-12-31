@@ -283,3 +283,86 @@ def category_to_hurdleheight(category, distance='', birthyear=''):
         return ' ' + lookup[lookup_value]
     else:
         return ' ' + category + ' ' + birthyear
+
+
+# List of weights per category
+def category_to_weight(event, category, birthyear=''):
+    birthyear = str(birthyear)
+    category = category.replace('-1', '').replace('-2', '')
+
+    if event == 'kogelstoten':
+        event = 'kogel'
+    elif event == 'kogelslingeren':
+        event = 'kogel'
+    elif event == 'discuswerpen':
+        event = 'discus'
+    elif event == 'speerwerpen':
+        event = 'speer'
+    elif event == 'gewichtwerpen':
+        event = 'gewicht'
+
+    lookup = {
+        'U8J': {'kogel': '1 kg'},  # WR p.297/298
+        'U9J': {'kogel': '1 kg'},
+        'U10J': {'kogel': '2 kg'},
+        'U12J': {'kogel': '2 kg'},
+
+        'U8M': {'kogel': '1 kg'},
+        'U9M': {'kogel': '1 kg'},
+        'U10M': {'kogel': '2 kg'},
+        'U12M': {'kogel': '2 kg'},
+
+
+        'U14J': {'kogel': '3 kg', 'discus': '1 kg', 'speer': '400 g'},  # WR p.290/291
+        'U16J': {'kogel': '4 kg', 'discus': '1 kg', 'speer': '600 g'},
+
+        'U14M': {'kogel': '2 kg', 'discus': '0,75 kg', 'speer': '400 g'},
+        'U16M': {'kogel': '3 kg', 'discus': '1 kg', 'speer': '500 g'},
+
+
+        'U18M': {'kogel': '5 kg', 'discus': '1,5 kg', 'speer': '700 g'},  # WR p.168
+        'U20M': {'kogel': '6 kg', 'discus': '1,75 kg', 'speer': '800 g'},
+        'U23M': {'kogel': '7,26 kg', 'discus': '2 kg', 'speer': '800 g'},
+        'SENM': {'kogel': '7,26 kg', 'discus': '2 kg', 'speer': '800 g'},
+
+        'U18V': {'kogel': '3 kg', 'discus': '1 kg', 'speer': '500 g'},
+        'U20V': {'kogel': '4 kg', 'discus': '1 kg', 'speer': '600 g'},
+        'U23V': {'kogel': '4 kg', 'discus': '1 kg', 'speer': '600 g'},
+        'SENV': {'kogel': '4 kg', 'discus': '1 kg', 'speer': '600 g'},
+
+
+        'M35':  {'kogel': '7,26 kg', 'discus': '2 kg', 'speer': '800 g', 'gewicht': '15,88 kg'},  # WR p.277
+        'M40':  {'kogel': '7,26 kg', 'discus': '2 kg', 'speer': '800 g', 'gewicht': '15,88 kg'},
+        'M45':  {'kogel': '7,26 kg', 'discus': '2 kg', 'speer': '800 g', 'gewicht': '15,88 kg'},
+        'M50':  {'kogel': '6 kg', 'discus': '1,5 kg', 'speer': '700 g', 'gewicht': '11,34 kg'},
+        'M55':  {'kogel': '6 kg', 'discus': '1,5 kg', 'speer': '700 g', 'gewicht': '11,34 kg'},
+        'M60':  {'kogel': '5 kg', 'discus': '1 kg', 'speer': '600 g', 'gewicht': '9,08 kg'},
+        'M65':  {'kogel': '5 kg', 'discus': '1 kg', 'speer': '600 g', 'gewicht': '9,08 kg'},
+        'M70':  {'kogel': '4 kg', 'discus': '1 kg', 'speer': '500 g', 'gewicht': '7,26 kg'},
+        'M75':  {'kogel': '4 kg', 'discus': '1 kg', 'speer': '500 g', 'gewicht': '7,26 kg'},
+        'M80':  {'kogel': '3 kg', 'discus': '1 kg', 'speer': '400 g', 'gewicht': '5,45 kg'},
+        'M85':  {'kogel': '3 kg', 'discus': '1 kg', 'speer': '400 g', 'gewicht': '5,45 kg'},
+        'M90':  {'kogel': '3 kg', 'discus': '1 kg', 'speer': '400 g', 'gewicht': '5,45 kg'},
+        'M95':  {'kogel': '3 kg', 'discus': '1 kg', 'speer': '400 g', 'gewicht': '5,45 kg'},
+        'M100': {'kogel': '3 kg', 'discus': '1 kg', 'speer': '400 g', 'gewicht': '5,45 kg'},
+
+        'V35':  {'kogel': '4 kg', 'discus': '1 kg', 'speer': '600 g', 'gewicht': '9,08 kg'},
+        'V40':  {'kogel': '4 kg', 'discus': '1 kg', 'speer': '600 g', 'gewicht': '9,08 kg'},
+        'V45':  {'kogel': '4 kg', 'discus': '1 kg', 'speer': '600 g', 'gewicht': '9,08 kg'},
+        'V50':  {'kogel': '3 kg', 'discus': '1 kg', 'speer': '500 g', 'gewicht': '7,26 kg'},
+        'V55':  {'kogel': '3 kg', 'discus': '1 kg', 'speer': '500 g', 'gewicht': '7,26 kg'},
+        'V60':  {'kogel': '3 kg', 'discus': '1 kg', 'speer': '500 g', 'gewicht': '5,45 kg'},
+        'V65':  {'kogel': '3 kg', 'discus': '1 kg', 'speer': '500 g', 'gewicht': '5,45 kg'},
+        'V70':  {'kogel': '3 kg', 'discus': '1 kg', 'speer': '500 g', 'gewicht': '5,45 kg'},
+        'V75':  {'kogel': '2 kg', 'discus': '0,75 kg', 'speer': '400 g', 'gewicht': '4 kg'},
+        'V80':  {'kogel': '2 kg', 'discus': '0,75 kg', 'speer': '400 g', 'gewicht': '4 kg'},
+        'V85':  {'kogel': '2 kg', 'discus': '0,75 kg', 'speer': '400 g', 'gewicht': '4 kg'},
+        'V90':  {'kogel': '2 kg', 'discus': '0,75 kg', 'speer': '400 g', 'gewicht': '4 kg'},
+        'V95':  {'kogel': '2 kg', 'discus': '0,75 kg', 'speer': '400 g', 'gewicht': '4 kg'},
+        'V100': {'kogel': '2 kg', 'discus': '0,75 kg', 'speer': '400 g', 'gewicht': '4 kg'}
+    }
+    if category in lookup:
+        if event in lookup[category]:
+            return ' ' + lookup[category][event]
+
+    return ' ' + category + ' ' + birthyear
