@@ -181,11 +181,12 @@ def category_to_gender(category):
 
 
 # List of hurdle heights per category
-def category_to_hurdleheight(category, distance=''):
+def category_to_hurdleheight(category, distance='', birthyear=''):
     distance = str(distance)
+    birthyear = str(birthyear)
     category = category.replace('-1', '').replace('-2', '')
     if distance == '200' or distance == '300' or distance == '400':
-        lookup_value = category + '-' + str(distance)
+        lookup_value = category + '-' + distance
     else:
         lookup_value = category
 
@@ -234,7 +235,7 @@ def category_to_hurdleheight(category, distance=''):
         'M90': '69cm',
         'M95': '69cm',
         'M100': '69cm',
-        'M35-400': '91cm',  # WR p.274/275
+        'M35-400': '91cm',
         'M40-400': '91cm',
         'M45-400': '91cm',
         'M50-400': '84cm',
@@ -281,4 +282,4 @@ def category_to_hurdleheight(category, distance=''):
     if lookup_value in lookup:
         return ' ' + lookup[lookup_value]
     else:
-        return ''
+        return ' ' + category + ' ' + birthyear

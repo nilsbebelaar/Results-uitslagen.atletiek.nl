@@ -46,7 +46,7 @@ def find_results(competition):
                     competitor['category'] = result['category']
                     competitor['gender'] = result['gender']
                     competitor['results'].append({
-                        'event': parse_event_name(resultlist['event_name_raw'], competitor['category']),
+                        'event': parse_event_name(resultlist['event_name_raw'], competitor['category'], competitor['birthyear']),
                         'result': result['result'],
                         'url': resultlist['url_result'],
                         'date': datetime.strftime(resultlist['date'], '%d-%m-%Y'),
@@ -151,11 +151,11 @@ def get_resultlists(competition):
 
 
 # THIS NEEDS EXTRA WORK
-def parse_event_name(event_name, category):
+def parse_event_name(event_name, category, birthyear):
     event_name_splitted = event_name.lower().split()
     if event_name_splitted[1] == 'horden':
         distance = event_name_splitted[0][:-1]
-        return ' '.join(event_name_splitted[:2]) + category_to_hurdleheight(category, distance)
+        return ' '.join(event_name_splitted[:2]) + category_to_hurdleheight(category, distance, birthyear)
     else:
         return event_name_splitted[0]
 
