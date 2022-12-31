@@ -41,7 +41,8 @@ def find_results(competition):
                     competitor['competition'] = {
                         'name': competition['name'],
                         'location': competition['location'],
-                        'type': competition['type']
+                        'type': competition['type'],
+                        'url': competition['url']
                     }
                     competitor['category'] = result['category']
                     competitor['gender'] = result['gender']
@@ -78,11 +79,11 @@ def get_competitors(competition):
 
 
 def get_resultlists(competition):
-    url = BASE_URL + '/Competitions/Details/' + str(competition['id'])
+    competition['url'] = BASE_URL + '/Competitions/Details/' + str(competition['id'])
     session = requests.session()
 
     # Page with competition information and all result lists
-    page_competition = BeautifulSoup(session.get(url, headers=headers).text, 'html.parser')
+    page_competition = BeautifulSoup(session.get(competition['url'], headers=headers).text, 'html.parser')
 
     title = page_competition.find('h1').text.strip()
     # Competition name is stored after the date, but some competitions are split over multiple days:
@@ -104,7 +105,7 @@ def get_resultlists(competition):
     competition['resultlists'] = []
     # Find all result lists, for each day
     for day in range(days):
-        page_competition = BeautifulSoup(session.get(url + '/' + str(day + 1), headers=headers).text, 'html.parser')
+        page_competition = BeautifulSoup(session.get(competition['url'] + '/' + str(day + 1), headers=headers).text, 'html.parser')
         for block in page_competition.find_all('div', {'class': 'blockcontent'}):
             for a in block.find_all('a'):
                 result_url = BASE_URL + a['href']
