@@ -14,25 +14,26 @@
     "competition": {
       "location": "City",
       "name": "Competition Title",
-      "type": "indoor"
+      "type": "indoor",
+      "url": "https://uitslagen.atletiek.nl/Competitions/Details/xxxx"
     },
     "gender": "male",
     "name": "Full Name",
     "results": [
       {
-        "date": "18-12-2022",
+        "date": "dd-mm-yyyy",
         "event": "50m horden 91cm",
         "result": "10,50",
         "url": "https://uitslagen.atletiek.nl/Competitions/CurrentList/xxxxx/xxxx"
       },
       {
-        "date": "18-12-2022",
+        "date": "dd-mm-yyyy",
         "event": "60m",
         "result": "9,99",
         "url": "https://uitslagen.atletiek.nl/Competitions/CurrentList/xxxxx/xxxx"
       },
       {
-        "date": "18-12-2022",
+        "date": "dd-mm-yyyy",
         "event": "hoogspringen",
         "result": "1,10",
         "url": "https://uitslagen.atletiek.nl/Competitions/CurrentList/xxxxx/xxxx"
@@ -48,13 +49,14 @@
     "competition": {
       "location": "City",
       "name": "Competition Title",
-      "type": "outdoor"
+      "type": "outdoor",
+      "url": "https://uitslagen.atletiek.nl/Competitions/Details/xxxx"
     },
     "gender": "female",
     "name": "Full Name",
     "results": [
       {
-        "date": "18-12-2022",
+        "date": "dd-mm-yyyy",
         "event": "60m",
         "result": "10,50",
         "url": "https://uitslagen.atletiek.nl/Competitions/CurrentList/xxxxx/xxxx"
