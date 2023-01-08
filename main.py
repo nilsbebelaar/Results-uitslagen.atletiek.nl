@@ -5,8 +5,8 @@ import json
 from datetime import datetime
 from categories import category_to_gender, category_to_hurdleheight, category_to_weight
 
-COMP_TYPE = 'indoor'
-COMP_ID = 8702
+COMP_TYPE = 'outdoor'
+COMP_ID = 8458
 
 BASE_URL = 'https://uitslagen.atletiek.nl'
 headers = {'accept-language': 'nl'}
@@ -18,17 +18,28 @@ def main():
     get_competitors(competition)
     find_results(competition)
 
-    # Create JSON from competition['competitors']
-    json_string = json.dumps(competition['competitors'], sort_keys=True, indent=2, ensure_ascii=False)
+    competitors_with_bd = [c for c in competition['competitors'] if c['birthyear'] != '0']
+    competitors_no_bd = [c for c in competition['competitors'] if c['birthyear'] == '0']
+
+    # Create JSON from competitors
+    json_string_with_bd = json.dumps(competitors_with_bd, sort_keys=True, indent=2, ensure_ascii=False)
+    json_string_no_bd = json.dumps(competitors_no_bd, sort_keys=True, indent=2, ensure_ascii=False)
     # Copy JSON to clipboard for easy pasting
-    pyperclip.copy(json_string)
+    pyperclip.copy(json_string_with_bd)
 
-    # Export JSON to file in /export directory
     filename = f"export/export_{competition['id']}.json"
+    filename_no_bd = f"export/export_{competition['id']}_no_birthyears.json"
+    # Export JSON to file in /export directory
     with open(filename, 'w') as outfile:
-        outfile.write(json_string)
+        outfile.write(json_string_with_bd)
+    with open(filename_no_bd, 'w') as outfile:
+        outfile.write(json_string_no_bd)
 
-    print(f"{competition['name']} was exported to {filename} and copied to clipboard.")
+    print(f"\n{competition['name']} was saved to '{filename}' and copied to clipboard.")
+    if competitors_no_bd:
+        print(f"\nThe following {len(competitors_no_bd)} competitors have no birthyear: (saved to '{filename_no_bd}')")
+        for competitor in competitors_no_bd:
+            print(f"{competitor['bib']:>4} - {competitor['name']} ({competitor['category'].split()[0]})")
 
 
 def find_results(competition):
@@ -44,7 +55,10 @@ def find_results(competition):
                         'type': competition['type'],
                         'url': competition['url']
                     }
-                    competitor['category'] = result['category']
+                    if result['category'] in ['MASTERSM', 'MASTERSV']:
+                        competitor['category'] = result['category'] + ' ' + competitor['birthyear']
+                    else:
+                        competitor['category'] = result['category']
                     competitor['gender'] = result['gender']
                     competitor['results'].append({
                         'event': parse_event_name(resultlist['event_name_raw'], competitor['category'], competitor['birthyear']),
