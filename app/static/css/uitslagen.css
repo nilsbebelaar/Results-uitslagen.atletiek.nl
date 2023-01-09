@@ -49,6 +49,10 @@ table.competitions {
     margin-left: auto;
     margin-right: auto;
 }
+table.competitions th,
+table.competitions td {
+    white-space: nowrap;
+}
 
 table.competitions thead th:last-child,
 table.competitions tbody td:last-child {

@@ -9,24 +9,36 @@
   <p class="title is-4 has-text-centered">Nieuwe wedstrijd toevoegen</p>
   <hr>
   <form method="POST" action="{{url_for('main.index')}}">
-    <div class="field">
-      <label class="label">ID</label>
-      <div class="control">
-        <input class="input" name="ID" required>
+    <div class="field is-horizontal">
+      <div class="field-label is-normal">
+        <label class="label">ID</label>
+      </div>
+      <div class="field-body">
+        <div class="field">
+          <div class="control">
+            <input class="input" name="ID" required>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="field">
-      <div class="control">
-        <label class="radio">
-          <input type="radio" name="type" value="indoor">
-          Indoor
-        </label>
-        <br>
-        <label class="radio">
-          <input type="radio" name="type" value="outdoor">
-          Outdoor
-        </label>
+    <div class="field is-horizontal">
+      <div class="field-label">
+        <label class="label">Type</label>
+      </div>
+      <div class="field-body">
+        <div class="field is-narrow">
+          <div class="control">
+            <label class="radio">
+              <input type="radio" name="type" value="Outdoor" required>
+              Outdoor
+            </label>
+            <label class="radio">
+              <input type="radio" name="type" value="Indoor" required>
+              Indoor
+            </label>
+          </div>
+        </div>
       </div>
     </div>
 
