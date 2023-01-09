@@ -1,11 +1,10 @@
 import requests
-import pyperclip
-from bs4 import BeautifulSoup
-import json
-from datetime import datetime
-from .categories import category_to_gender, category_to_hurdleheight, category_to_weight
-from .load_data import load_comp, save_comp, save_export
 import xmltodict
+from bs4 import BeautifulSoup
+from datetime import datetime
+from app.main.categories import category_to_gender, category_to_hurdleheight, category_to_weight
+from app.main.load_data import save_export
+from app.models import Competitions
 
 
 BASE_URL = 'https://uitslagen.atletiek.nl'
@@ -21,15 +20,18 @@ def save_download(comp):
     save_export(athletes_no_number, comp['id'], '_no_licencenumber')
 
 
-def async_download_competition_results(id, full_reload=False):
-    comp = load_comp(id)
-    if full_reload:
-        get_competition_info_xml(comp)
-    get_results_from_lists(comp)
-    find_results(comp)
-    save_download(comp)
-    comp['status'] = 'Gereed'
-    save_comp(comp)
+def async_download_competition_results(app, id, full_reload=False):
+    with app.app_context():
+        comp = Competitions.load_dict(id)
+        if not comp:
+            return
+        if full_reload:
+            get_competition_info_xml(comp)
+        get_results_from_lists(comp)
+        find_results(comp)
+        save_download(comp)
+        comp['status'] = 'Ready'
+        Competitions.save_dict(comp)
 
 
 def find_results(comp):

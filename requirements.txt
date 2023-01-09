@@ -4,6 +4,7 @@ pyperclip
 
 requests
 flask
+Flask_SQLAlchemy
 environs
 python-dotenv
 xmltodict

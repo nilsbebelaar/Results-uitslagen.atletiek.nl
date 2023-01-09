@@ -22,24 +22,24 @@
     <tbody>
       {% for comp in comps %}
       <tr>
-        <td class="has-text-centered">{{comp['date_print']}}</td>
+        <td class="has-text-centered">{{comp.date_print}}</td>
         <td> <span class="has-tooltip-top has-tooltip-arrow" style="border-bottom: none;"
-            data-tooltip="Wedstrijd ID: {{comp['id']}}">{{comp['name']}}</span></td>
-        <td>{{comp['location']}}</td>
-        <td>{{comp['country']}}</td>
-        <td class="has-text-centered">{{comp['type']}}</td>
-        <td class="has-text-centered">{{comp['resultlists']|length}}</td>
-        <td class="has-text-centered">{{comp['status']}}</td>
+            data-tooltip="Wedstrijd ID: {{comp.id}}">{{comp.name}}</span></td>
+        <td>{{comp.location}}</td>
+        <td>{{comp.country}}</td>
+        <td class="has-text-centered">{{comp.type}}</td>
+        <td class="has-text-centered">{{comp.number_of_lists}}</td>
+        <td class="has-text-centered">{{comp.status}}</td>
         <td class="has-text-centered">
-          <a href="{{url_for('main.reload', id=comp['id'])}}"
+          <a href="{{url_for('main.reload', id=comp.id)}}"
             class="has-tooltip-warning has-tooltip-arrow has-tooltip-left has-text-centered" data-tooltip="Redownload"><button
               class="button is-warning"><span class="icon is-small"><i
                   class="fas fa-arrows-rotate"></i></span></button></a>
-          {% if comp['status'] == 'Gereed' %}
-          <a href="static/export/{{comp['id']}}.json" target="_blank"
+          {% if comp.status == 'Ready' %}
+          <a href="static/export/{{comp.id}}.json" target="_blank"
             class="has-tooltip-success has-tooltip-arrow has-tooltip-left has-text-centered" data-tooltip="Download"><button
               class="button is-success"><span class="icon is-small"><i class="fas fa-download"></i></span></button></a>
-          <a href="static/export/{{comp['id']}}_no_licencenumber.json" target="_blank"
+          <a href="static/export/{{comp.id}}_no_licencenumber.json" target="_blank"
             class="has-tooltip-info has-tooltip-arrow has-tooltip-left has-text-centered" data-tooltip="Download (no licence numbers)"><button
               class="button is-info"><span class="icon is-small"><i class="fas fa-download"></i></span></button></a>
           {% endif %}

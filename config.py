@@ -12,6 +12,7 @@ class Config:
     FLASK_APP = 'start.py'
     FLASK_DEBUG = env.bool('FLASK_DEBUG')
     TESTING = env.bool('FLASK_TESTING')
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///../' + env('SQLALCHEMY_DATABASE_PATH')
 
     STATIC_FOLDER = 'static'
     TEMPLATES_FOLDER = 'templates'

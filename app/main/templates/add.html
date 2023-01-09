@@ -55,11 +55,11 @@
         <div class="field is-narrow">
           <div class="control">
             <label class="radio">
-              <input type="radio" name="type" value="Outdoor" {% if comp['type']=='outdoor' %}checked{% endif %}>
+              <input type="radio" name="type" value="Outdoor" {% if comp['type']=='Outdoor' %}checked{% endif %} required>
               Outdoor
             </label>
             <label class="radio">
-              <input type="radio" name="type" value="Indoor" {% if comp['type']=='indoor' %}checked{% endif %}>
+              <input type="radio" name="type" value="Indoor" {% if comp['type']=='Indoor' %}checked{% endif %} required>
               Indoor
             </label>
           </div>

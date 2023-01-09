@@ -1,14 +1,22 @@
 version: "3.9"
 
+volumes:
+  uitslagen-db:
+  uitslagen-exports:
+
 services:
   uitslagen-server:
     image: nilsbebelaar/uitslagen-atletiek.nl:latest
-    container_name: Uitslagen Server
+    container_name: Uitslagen-Server
     restart: always
     ports:
       - '5000:5000'
     expose:
       - '5000'
     environment:
-      - FLASK_DEBUG=False
+      - FLASK_DEBUG=True
       - FLASK_TESTING=False
+      - SQLALCHEMY_DATABASE_PATH=database/uitslagen.sqlite
+    volumes:
+      - uitslagen-db:/home/uitslagen/database
+      - uitslagen-exports:/home/uitslagen/app/static/export
