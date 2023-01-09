@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block header %}
+<p class="title is-1">Home</p>
+{% endblock %}
+
+{% block content %}
+<div class="main-column-centered box">
+  <p class="title is-4 has-text-centered">Nieuwe wedstrijd toevoegen</p>
+  <hr>
+  <form method="POST" action="{{url_for('main.index')}}">
+    <div class="field">
+      <label class="label">ID</label>
+      <div class="control">
+        <input class="input" name="ID" required>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="control">
+        <label class="radio">
+          <input type="radio" name="type" value="indoor">
+          Indoor
+        </label>
+        <br>
+        <label class="radio">
+          <input type="radio" name="type" value="outdoor">
+          Outdoor
+        </label>
+      </div>
+    </div>
+
+    <div class="flex-center">
+      <button class="button is-block is-info is-light is-medium">
+        <span class="icon is-medium"><i class="fas fa-plus"></i></span>
+        <span>Toevoegen</span>
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,3 +1,9 @@
-requests
 beautifulsoup4
+lxml
 pyperclip
+
+requests
+flask
+environs
+python-dotenv
+xmltodict

@@ -1,0 +1,64 @@
+html {
+    overflow-x: hidden;
+    overflow-y: visible
+}
+
+body {
+    min-height: 100vh;
+    /* background-color: #D3EBE4; */
+    margin: 0;
+    overflow-x: hidden;
+}
+
+body>section:last-of-type {
+    margin-bottom: 3em;
+}
+
+.main-column-centered {
+    margin: 20px auto;
+    max-width: 480px;
+}
+
+.home-column-centered {
+    margin: 20px auto;
+    max-width: 800px;
+}
+
+.navbar-item span.icon {
+    margin-right: 0.25em;
+}
+
+.message-column-centered {
+    margin: .75em auto;
+    max-width: 560px;
+}
+
+.flex-center {
+    display: flex;
+    justify-content: center;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+    row-gap: 5px;
+}
+
+table.competitions {
+    overflow: hidden;
+    max-width: 1160px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+table.competitions thead th:last-child,
+table.competitions tbody td:last-child {
+    padding-right: 35px;
+}
+
+table.competitions tr a button {
+    font-size: .65em;
+}
+
+a.has-tooltip-multiline::before {
+    width: auto !important;
+}
