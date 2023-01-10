@@ -11,9 +11,6 @@ headers = {'accept-language': 'nl'}
 
 
 def save_download(comp):
-    for athlete in comp['athletes']:
-        athlete.pop('id', None)
-
     with open(f"app/static/export/{comp['id']}.json", 'w') as outfile:
         outfile.write(json.dumps(comp['athletes'], sort_keys=True, indent=2, ensure_ascii=False))
 
@@ -34,9 +31,11 @@ def async_download_competition_results(app, id, full_reload=False):
 
         find_results(comp)
 
-        save_download(comp)
         comp['status'] = 'Ready'
         Competitions.save_dict(comp)
+
+        save_download(comp)
+        return comp
 
 
 def find_results(comp):
@@ -77,6 +76,7 @@ def find_results(comp):
                     'date': result['date'],
                     'category': result['category']
                 })
+        athlete.pop('id', None)
 
     # Remove competitors if the have no results
     comp['athletes'] = [athlete for athlete in comp['athletes'] if athlete['results']]

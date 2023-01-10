@@ -6,6 +6,9 @@ basedir = path.abspath(path.dirname(__file__))
 load_dotenv(path.join(basedir, '.env'))
 env = Env()
 
+ALLOWED_DOMAINS = ['uitslagen.atletiek.nl', 'ergebnisse.leichtathletik.de']
+
+
 class Config:
     """Set Flask config variables."""
 
@@ -19,5 +22,3 @@ class Config:
 
     import secrets
     SECRET_KEY = secrets.token_hex(64)
-
-

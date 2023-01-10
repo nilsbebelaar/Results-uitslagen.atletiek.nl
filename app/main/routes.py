@@ -4,6 +4,7 @@ from app.main.background import get_competition_info_xml, async_download_competi
 from app.models import Competitions
 from app import db
 from threading import Thread
+from config import ALLOWED_DOMAINS
 
 main_bp = Blueprint('main', __name__, template_folder='templates', static_folder='static')
 
