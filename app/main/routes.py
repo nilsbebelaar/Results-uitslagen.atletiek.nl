@@ -14,28 +14,23 @@ def index():
         return render_template('index.html')
 
     if request.method == 'POST':
-        id = request.form.get('ID')
-        type = request.form.get('type')
+        comp = {
+            'id': request.form.get('ID'),
+            'type': request.form.get('type'),
+            'source': request.form.get('source').split('-')[-1]
+        }
 
-        comp = {'id': id, 'type': type}
+        domain = request.form.get('source').split('-')[0]
+        if domain == 'NED':
+            comp['domain'] = 'uitslagen.atletiek.nl'
+        elif domain == 'GER':
+            comp['domain'] = 'ergebnisse.leichtathletik.de'
+
         get_competition_info_xml(comp)
         comp['status'] = 'Not downloaded'
         Competitions.save_dict(comp)
 
-        return redirect(url_for('main.add', id=id))
-
-
-@main_bp.route('/reload/<id>', methods=['GET'])
-def reload(id):
-    comp = Competitions.load_dict(id)
-    comp = {'id': id, 'type': comp['type'], 'name': comp['name']}
-    comp['status'] = 'Downloading'
-    Competitions.save_dict(comp)
-
-    Thread(target=async_download_competition_results, args=(current_app._get_current_object(), id, True)).start()
-
-    flash(f"Wedstrijd '{comp['name']}' wordt opnieuw gedownload", 'info')
-    return redirect(url_for('main.list'))
+        return redirect(url_for('main.add', id=comp['id']))
 
 
 @main_bp.route('/add/<id>', methods=['GET', 'POST'])
@@ -52,7 +47,7 @@ def add(id):
         comp['status'] = 'Downloading'
         Competitions.save_dict(comp)
 
-        Thread(target=async_download_competition_results, args=(current_app._get_current_object(),id)).start()
+        Thread(target=async_download_competition_results, args=(current_app._get_current_object(), id)).start()
 
         flash(f"Wedstrijd '{comp['name']}' wordt toegevoegd", 'info')
         return redirect(url_for('main.list'))
@@ -62,3 +57,16 @@ def add(id):
 def list():
     comps = Competitions.list()
     return render_template('list.html', comps=comps)
+
+
+@main_bp.route('/reload/<id>', methods=['GET'])
+def reload(id):
+    comp = Competitions.load_dict(id)
+    comp = {'id': id, 'type': comp['type'], 'name': comp['name']}
+    comp['status'] = 'Downloading'
+    Competitions.save_dict(comp)
+
+    Thread(target=async_download_competition_results, args=(current_app._get_current_object(), id, True)).start()
+
+    flash(f"Wedstrijd '{comp['name']}' wordt opnieuw gedownload", 'info')
+    return redirect(url_for('main.list'))

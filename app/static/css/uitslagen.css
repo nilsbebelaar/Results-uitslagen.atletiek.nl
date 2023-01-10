@@ -49,6 +49,7 @@ table.competitions {
     margin-left: auto;
     margin-right: auto;
 }
+
 table.competitions th,
 table.competitions td {
     white-space: nowrap;
@@ -61,6 +62,13 @@ table.competitions tbody td:last-child {
 
 table.competitions tr a button {
     font-size: .65em;
+}
+
+table.competitions td img.flag {
+    height: 1em;
+    padding-right: 5px;
+    vertical-align: middle;
+    margin-bottom: 3px;
 }
 
 a.has-tooltip-multiline::before {

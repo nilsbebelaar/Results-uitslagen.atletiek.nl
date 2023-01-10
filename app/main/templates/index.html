@@ -11,6 +11,24 @@
   <form method="POST" action="{{url_for('main.index')}}">
     <div class="field is-horizontal">
       <div class="field-label is-normal">
+        <label class="label">Bron</label>
+      </div>
+      <div class="field-body">
+        <div class="field">
+          <div class="control">
+            <div class="select">
+              <select name="source">
+                <option value="NED-html">uitslagen.atletiek.nl (html)</option>
+                <option value="GER-xml">ergebnisse.leichtathletik.de (xml)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field is-horizontal">
+      <div class="field-label is-normal">
         <label class="label">ID</label>
       </div>
       <div class="field-body">

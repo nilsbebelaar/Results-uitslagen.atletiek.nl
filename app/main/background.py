@@ -1,23 +1,21 @@
 import requests
 import xmltodict
+import json
 from bs4 import BeautifulSoup
 from datetime import datetime
-from app.main.categories import category_to_gender, category_to_hurdleheight, category_to_weight
-from app.main.load_data import save_export
+from app.main.categories import category_to_gender, category_to_hurdleheight, category_to_weight, code_to_eventname
 from app.models import Competitions
 
 
-BASE_URL = 'https://uitslagen.atletiek.nl'
 headers = {'accept-language': 'nl'}
 
 
 def save_download(comp):
     for athlete in comp['athletes']:
         athlete.pop('id', None)
-    athletes = [a for a in comp['athletes'] if int(a['licencenumber']) != 0]
-    athletes_no_number = [a for a in comp['athletes'] if int(a['licencenumber']) == 0]
-    save_export(athletes, comp['id'])
-    save_export(athletes_no_number, comp['id'], '_no_licencenumber')
+
+    with open(f"app/static/export/{comp['id']}.json", 'w') as outfile:
+        outfile.write(json.dumps(comp['athletes'], sort_keys=True, indent=2, ensure_ascii=False))
 
 
 def async_download_competition_results(app, id, full_reload=False):
@@ -25,10 +23,17 @@ def async_download_competition_results(app, id, full_reload=False):
         comp = Competitions.load_dict(id)
         if not comp:
             return
+
         if full_reload:
             get_competition_info_xml(comp)
-        get_results_from_lists(comp)
+
+        if comp['source'] == 'html':
+            get_results_from_lists(comp)
+        elif comp['source'] == 'xml':
+            get_results_from_xml(comp)
+
         find_results(comp)
+
         save_download(comp)
         comp['status'] = 'Ready'
         Competitions.save_dict(comp)
@@ -43,36 +48,50 @@ def find_results(comp):
             'url': comp['url']
         }
         athlete['results'] = []
-        # For every athlete, loop through all results
-        for resultlist in comp['resultlists']:
-            for result in resultlist['results']:
-                # If a athlete's bib-number exists in the results, append the result to the athlete['results'] list
-                if athlete['bib'] == result['bib']:
-                    if result['category'] in ['MASTERSM', 'MASTERSV']:
-                        result['category'] = result['category'] + ' ' + athlete['birthyear']
-                    athlete['results'].append({
-                        'event': parse_event_name(resultlist['event_name_raw'], result['category'], athlete['birthyear']),
-                        'result': result['result'],
-                        'url': resultlist['url'],
-                        'date': resultlist['date'],
-                        'category': result['category']
-                    })
-                    # competitor['SELTECLOOKUP'] = "1"  # Empty field needed because tussenvoegsels are not published
+        if comp['source'] == 'html':
+            # For every athlete, loop through all results
+            for resultlist in comp['resultlists']:
+                for result in resultlist['results']:
+                    # If a athlete's bib-number exists in the results, append the result to the athlete['results'] list
+                    if athlete['bib'] == result['bib']:
+                        if result['category'] in ['MASTERSM', 'MASTERSV']:
+                            result['category'] = result['category'] + ' ' + athlete['birthyear']
+                        athlete['results'].append({
+                            'event': parse_event_name(resultlist['event_name_raw'], result['category'], athlete['birthyear']),
+                            'result': result['result'],
+                            'url': resultlist['url'],
+                            'date': resultlist['date'],
+                            'category': result['category']
+                        })
+                        # competitor['SELTECLOOKUP'] = "1"  # Empty field needed because tussenvoegsels are not published
+        elif comp['source'] == 'xml':
+            for result in find_by_id(comp['results'], athlete['id'], [], 'athlete_id'):
+                athlete['results'].append({
+                    'event': find_by_id(comp['events'], result['event_id'], 'name'),  # parse_event_name(resultlist['event_name_raw'], result['category'], athlete['birthyear']),
+                    'result': result['result'],
+                    'url': comp['url'],
+                    'date': result['date'],
+                    'category': result['category']
+                })
 
     # Remove competitors if the have no results
     comp['athletes'] = [athlete for athlete in comp['athletes'] if athlete['results']]
 
 
-def get_competition_info_xml(comp):
-    comp['url'] = BASE_URL + '/Competitions/Details/' + str(comp['id'])
+def download_xml(comp):
+    comp['url'] = 'https://' + comp['domain'] + '/Competitions/Details/' + str(comp['id'])
     session = requests.session()
 
     # XML page with competition information
     response = session.get(comp['url'] + '/ladvxml', headers=headers)
     xml = xmltodict.parse(response.text, process_namespaces=True)
 
-    xml = xml['meetingresult']
+    session.close()
+    return xml['meetingresult']
 
+
+def get_competition_info_xml(comp):
+    xml = download_xml(comp)
     comp['country'] = xml['@country']
     comp['begindate'] = xml['@begindate']
     comp['enddate'] = xml['@enddate']
@@ -99,11 +118,12 @@ def get_competition_info_xml(comp):
         'id': a['@id'],
         'licencenumber': a['@licencenumber'],
         'bib': a['@number'],
-        'sex': a['@sex']
+        'sex': 'male' if a['@sex'] == 'M' else ('female' if a['@sex'] == 'W' else '')
     } for a in xml['athletes']['athlete']]
 
     comp['days'] = calc_day_difference(comp['begindate'], comp['enddate'], '%Y-%m-%d') + 1
 
+    session = requests.session()
     comp['resultlists'] = []
     # Find all result lists, for each day
     for day in range(comp['days']):
@@ -112,7 +132,7 @@ def get_competition_info_xml(comp):
         for block in page_competition.find_all('div', {'class': 'blockcontent'}):
             for a in block.find_all('a'):
                 resultlist = {}
-                resultlist['url'] = BASE_URL + a['href']
+                resultlist['url'] = 'https://' + comp['domain'] + a['href']
                 resultlist['raw_name'] = a.find('div', {'class': 'mainname'}).text.strip()
                 comp['resultlists'].append(resultlist)
     session.close()
@@ -126,8 +146,49 @@ def parse_date(date_string, format_in, format_out='%d-%m-%Y'):
     return datetime.strftime(datetime.strptime(date_string, format_in), format_out)
 
 
-def find_by_id(searchlist, id, searchindex):
-    return [c[searchindex] for c in searchlist if c['id'] == id][0]
+def find_by_id(searchlist, id, findindex, searchindex='id'):
+    if type(findindex) is list:
+        return [c for c in searchlist if c[searchindex] == id]
+    else:
+        return [c[findindex] for c in searchlist if c[searchindex] == id][0]
+
+
+def get_results_from_xml(comp):
+    xml = download_xml(comp)
+    comp['results'] = []
+    for round in xml['rounds']['round']:
+        if round['@roundtype'] == 'TIMERACE' and '@roundid' not in round:
+            continue
+        if 'individual' not in round['results']:
+            continue
+        if type(round['results']['individual']) is list:
+            for result in round['results']['individual']:
+                comp['results'].append({
+                    'athlete_id': result['@athlete'],
+                    'event_id': round['@event'],
+                    'date': round['@startofeventdate'],
+                    'category': round['@ageclass'],
+                    'result': result['@result']
+                })
+        else:
+            result = round['results']['individual']
+            comp['results'].append({
+                'athlete_id': result['@athlete'],
+                'event_id': round['@event'],
+                'date': round['@startofeventdate'],
+                'category': round['@ageclass'],
+                'result': result['@result']
+            })
+
+    comp['events'] = []
+    for event in xml['events']['event']:
+        comp['events'].append({
+            'name': code_to_eventname(event['@code']),
+            'id': event['@id']
+        })
+
+    comp['type'] = 'Indoor' if xml['rounds']['round'][0]['@indoor'] == 'true' else 'Outdoor'
+    return
 
 
 def get_results_from_lists(comp):

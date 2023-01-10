@@ -16,6 +16,8 @@ class Competitions(db.Model):
     date_print = db.Column(db.String(20))
     days = db.Column(db.Integer())
 
+    source = db.Column(db.String(100))
+    domain = db.Column(db.String(100))
     location = db.Column(db.String(100))
     country = db.Column(db.String(5))
     name = db.Column(db.String(200))
@@ -30,8 +32,10 @@ class Competitions(db.Model):
 
     @staticmethod
     def load_dict(id):
-        comp = Competitions.query.get(id).__dict__
-        if not comp:
+        comp = Competitions.query.get(id)
+        if comp:
+            comp = comp.__dict__
+        else:
             return None
         comp['athletes'] = json.loads(comp['athletes'])
         comp['resultlists'] = json.loads(comp['resultlists'])
