@@ -47,6 +47,7 @@ def find_results(comp):
             'type': comp['type'],
             'url': comp['url']
         }
+        athlete['SELTECLOOKUP'] = '1' if athlete['licencenumber'] == '0' else '0'
         athlete['results'] = []
         if comp['source'] == 'html':
             # For every athlete, loop through all results
@@ -54,20 +55,23 @@ def find_results(comp):
                 for result in resultlist['results']:
                     # If a athlete's bib-number exists in the results, append the result to the athlete['results'] list
                     if athlete['bib'] == result['bib']:
+                        if resultlist['is_highjump']:
+                            result['category'] = resultlist['categories'][athlete['bib']]
+
                         if result['category'] in ['MASTERSM', 'MASTERSV']:
                             result['category'] = result['category'] + ' ' + athlete['birthyear']
+
                         athlete['results'].append({
-                            'event': parse_event_name(resultlist['event_name_raw'], result['category'], athlete['birthyear']),
+                            'event': parse_event_name(resultlist['raw_name'], result['category'], athlete['birthyear']),
                             'result': result['result'],
                             'url': resultlist['url'],
                             'date': resultlist['date'],
                             'category': result['category']
                         })
-                        # competitor['SELTECLOOKUP'] = "1"  # Empty field needed because tussenvoegsels are not published
         elif comp['source'] == 'xml':
             for result in find_by_id(comp['results'], athlete['id'], [], 'athlete_id'):
                 athlete['results'].append({
-                    'event': find_by_id(comp['events'], result['event_id'], 'name'),  # parse_event_name(resultlist['event_name_raw'], result['category'], athlete['birthyear']),
+                    'event': find_by_id(comp['events'], result['event_id'], 'name'),
                     'result': result['result'],
                     'url': comp['url'],
                     'date': result['date'],
@@ -88,6 +92,16 @@ def download_xml(comp):
 
     session.close()
     return xml['meetingresult']
+
+
+def download_html(url):
+    session = requests.session()
+
+    response = session.get(url, headers=headers)
+    page_result = BeautifulSoup(response.text, 'html.parser')
+
+    session.close()
+    return page_result
 
 
 def get_competition_info_xml(comp):
@@ -123,19 +137,16 @@ def get_competition_info_xml(comp):
 
     comp['days'] = calc_day_difference(comp['begindate'], comp['enddate'], '%Y-%m-%d') + 1
 
-    session = requests.session()
     comp['resultlists'] = []
     # Find all result lists, for each day
     for day in range(comp['days']):
-        response = session.get(comp['url'] + '/' + str(day + 1), headers=headers)
-        page_competition = BeautifulSoup(response.text, 'html.parser')
+        page_competition = download_html(comp['url'] + '/' + str(day + 1))
         for block in page_competition.find_all('div', {'class': 'blockcontent'}):
             for a in block.find_all('a'):
                 resultlist = {}
-                resultlist['url'] = 'https://' + comp['domain'] + a['href']
+                resultlist['url'] = 'https://' + comp['domain'] + a['href'].replace('CurrentList', 'ResultList')
                 resultlist['raw_name'] = a.find('div', {'class': 'mainname'}).text.strip()
                 comp['resultlists'].append(resultlist)
-    session.close()
 
 
 def calc_day_difference(startdate_string, enddate_string, format):
@@ -192,14 +203,9 @@ def get_results_from_xml(comp):
 
 
 def get_results_from_lists(comp):
-    session = requests.session()
     for resultlist in comp['resultlists']:
         # Page with the result list
-        response = session.get(resultlist['url'], headers=headers)
-        page_result = BeautifulSoup(response.text, 'html.parser')
-
-        # Name of result list is part of <div class="leftheader">
-        resultlist['event_name_raw'] = page_result.find('div', {'class': 'leftheader'}).text.strip()
+        page_result = download_html(resultlist['url'])
 
         # Find the date of the result list
         date_string = page_result.find('div', {'class': 'listheader'}).find_all('div')[-1].text.strip()[:10]
@@ -214,7 +220,17 @@ def get_results_from_lists(comp):
             result['result'] = line.find('div', {'class': 'col-4'}).div.text.strip()
             result['category'] = line.find_all('div', {'class': 'col-4'})[-1].find('div', {'class': 'firstline'}).text.strip()
             resultlist['results'].append(result)
-    session.close()
+
+        resultlist['is_highjump'] = True if resultlist['raw_name'][:4].lower() == 'hoog' else False
+
+        if resultlist['is_highjump']:
+            resultlist['categories'] = {}
+
+            page_result = download_html(resultlist['url'].replace('ResultList', 'StartList'))
+            for line in page_result.find('div', {'class': 'blocktable'}).find_all('div', {"class": "entryline"}):
+                bib = line.find('div', {'class': 'col-1'}).find('div', {'class': 'secondline'}).text.strip()
+                category = line.find('div', {'class': 'col-5'}).find('div', {'class': 'firstline'}).text.strip()
+                resultlist['categories'][bib] = category
 
 
 # THIS NEEDS EXTRA WORK
