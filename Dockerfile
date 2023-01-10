@@ -11,7 +11,6 @@ RUN venv/bin/pip install gunicorn
 
 COPY app app
 RUN mkdir database
-# COPY migrations migrations
 COPY start.py config.py boot.sh ./
 RUN chmod +x boot.sh
 
