@@ -60,7 +60,7 @@ def find_results(comp):
                             result['category'] = result['category'] + ' ' + athlete['birthyear']
 
                         athlete['results'].append({
-                            'event': parse_event_name(resultlist['raw_name'], result['category'], athlete['birthyear']),
+                            'event': parse_event_name(resultlist['raw_name']) + parse_event_detail(result['event_detail']),  # result['category'], athlete['birthyear']),
                             'result': result['result'],
                             'url': resultlist['url'],
                             'date': resultlist['date'],
@@ -216,6 +216,8 @@ def get_results_from_lists(comp):
             result['result'] = line.find('div', {'class': 'col-4'}).div.text.strip()
             result['category'] = line.find_all('div', {'class': 'col-4'})[-1].find('div', {'class': 'firstline'}).text.strip()
             resultlist['results'].append(result)
+                detail = line.find_all('div', {'class': 'col-4'})[-1].find('div', {'class': 'secondline'})
+                result['event_detail'] = detail.text.strip() if detail else ''
 
         resultlist['is_highjump'] = True if resultlist['raw_name'][:4].lower() == 'hoog' else False
 
@@ -230,13 +232,22 @@ def get_results_from_lists(comp):
 
 
 # THIS NEEDS EXTRA WORK
-def parse_event_name(event_name, category, birthyear):
+def parse_event_name(event_name):
     event_name_splitted = event_name.lower().split()
-    if event_name_splitted[1] == 'horden':
-        distance = event_name_splitted[0][:-1]
-        return ' '.join(event_name_splitted[:2]) + category_to_hurdleheight(category, distance, birthyear)
-    elif event_name_splitted[0] in ['kogelstoten', 'speerwerpen', 'gewichtwerpen', 'kogelslingeren', 'discuswerpen']:
-        distance = event_name_splitted[0][:-1]
-        return ' '.join(event_name_splitted[:1]) + category_to_weight(event_name_splitted[0], category, birthyear)
-    else:
-        return event_name_splitted[0]
+    if event_name_splitted[0] in ['shot', 'long', 'high'] or event_name_splitted[1] in ['horden', 'hurdles', 'hürden']:
+        return event_name_splitted[0] + ' ' + event_name_splitted[1]
+    return event_name_splitted[0]
+
+
+def parse_event_detail(detail):
+    if detail:
+        if detail[-2:] == 'mm':  # Detail contains Hurdle Heights
+            value = int(re.findall(r'\d+', detail)[0])
+            return f' {int(value/10)}cm'  # Convert to whole cm
+        elif detail[-1] == 'g':
+            value = int(re.findall(r'\d+', detail)[0])
+            if value >= 1000:
+                return f' {value/1000:.3g}kg'  # Convert to kg with at most two decimals
+            else:
+                return f' {value}g'  # Leave in g for values lower than 1000g
+    return ''
