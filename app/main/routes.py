@@ -1,8 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
-from flask.wrappers import Response
 from app.main.background import get_competition_info_xml, async_download_competition_results
 from app.models import Competitions
-from app import db
 from threading import Thread
 from config import ALLOWED_DOMAINS
 

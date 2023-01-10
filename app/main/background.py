@@ -4,7 +4,7 @@ import json
 import re
 from bs4 import BeautifulSoup
 from datetime import datetime
-from app.main.categories import category_to_gender, category_to_hurdleheight, category_to_weight, code_to_eventname
+from app.main.categories import code_to_eventname
 from app.models import Competitions
 
 

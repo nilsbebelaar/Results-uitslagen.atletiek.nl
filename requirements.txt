@@ -1,6 +1,5 @@
 beautifulsoup4
 lxml
-pyperclip
 
 requests
 flask
