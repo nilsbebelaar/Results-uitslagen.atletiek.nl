@@ -10,7 +10,7 @@ from app.models import Competitions
 headers = {'accept-language': 'nl'}
 
 
-def save_download(comp):
+def save_to_file(comp):
     with open(f"app/static/export/{comp['id']}.json", 'w') as outfile:
         outfile.write(json.dumps(comp['athletes'], sort_keys=True, indent=2, ensure_ascii=False))
 
@@ -34,7 +34,7 @@ def async_download_competition_results(app, id, full_reload=False):
         comp['status'] = 'Ready'
         Competitions.save_dict(comp)
 
-        save_download(comp)
+        save_to_file(comp)
         return comp
 
 
@@ -43,7 +43,6 @@ def find_results(comp):
         athlete['competition'] = {
             'name': comp['name'],
             'location': comp['location'],
-            'type': comp['type'],
             'url': comp['url']
         }
         athlete['SELTECLOOKUP'] = '1' if athlete['licencenumber'] == '0' else '0'
@@ -197,9 +196,6 @@ def get_results_from_xml(comp):
             'name': code_to_eventname(event['@code']),
             'id': event['@id']
         })
-
-    comp['type'] = 'Indoor' if xml['rounds']['round'][0]['@indoor'] == 'true' else 'Outdoor'
-    return
 
 
 def get_results_from_lists(comp):

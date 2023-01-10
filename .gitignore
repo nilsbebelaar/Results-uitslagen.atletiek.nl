@@ -152,3 +152,4 @@ cython_debug/
 #.idea/
 
 database
+app/main/test.py
