@@ -1,6 +1,7 @@
 import requests
 import xmltodict
 import json
+import re
 from bs4 import BeautifulSoup
 from datetime import datetime
 from app.main.categories import category_to_gender, category_to_hurdleheight, category_to_weight, code_to_eventname
@@ -204,31 +205,36 @@ def get_results_from_lists(comp):
         page_result = download_html(resultlist['url'])
 
         # Find the date of the result list
-        date_string = page_result.find('div', {'class': 'listheader'}).find_all('div')[-1].text.strip()[:10]
+        listheaders = page_result.find_all('div', {'class': 'listheader'})
+        if len(listheaders) <= 2:
+            date_string = listheaders[0].find_all('div')[-1].text.strip()[:10]
+        if len(listheaders) == 3:
+            date_string = listheaders[1].find_all('div')[-1].text.strip()[:10]
         resultlist['date'] = datetime.strftime(datetime.strptime(date_string, "%d.%m.%Y"), '%d-%m-%Y')
 
         resultlist['results'] = []
         # Each result is saved in a new <div class="entryline">
         # Only take the first <div class="roundblock">, all others are duplicates per category
-        for line in page_result.find('div', {'class': 'roundblock'}).find_all('div', {"class": "entryline"}):
-            result = {}
-            result['bib'] = line.find('div', {'class': 'col-1'}).find('div', {'class': 'secondline'}).text.strip()
-            result['result'] = line.find('div', {'class': 'col-4'}).div.text.strip()
-            result['category'] = line.find_all('div', {'class': 'col-4'})[-1].find('div', {'class': 'firstline'}).text.strip()
-            resultlist['results'].append(result)
+        if page_result.find('div', {'class': 'roundblock'}):
+            for line in page_result.find('div', {'class': 'roundblock'}).find_all('div', {"class": "entryline"}):
+                result = {}
+                result['bib'] = line.find('div', {'class': 'col-1'}).find('div', {'class': 'secondline'}).text.strip()
+                result['result'] = line.find('div', {'class': 'col-4'}).div.text.strip()
+                result['category'] = line.find_all('div', {'class': 'col-4'})[-1].find('div', {'class': 'firstline'}).text.strip()
                 detail = line.find_all('div', {'class': 'col-4'})[-1].find('div', {'class': 'secondline'})
                 result['event_detail'] = detail.text.strip() if detail else ''
+                resultlist['results'].append(result)
 
-        resultlist['is_highjump'] = True if resultlist['raw_name'][:4].lower() == 'hoog' else False
+            resultlist['is_highjump'] = True if resultlist['raw_name'][:4].lower() in ['hoog', 'hoch', 'high'] else False
 
-        if resultlist['is_highjump']:
-            resultlist['categories'] = {}
+            if resultlist['is_highjump']:
+                resultlist['categories'] = {}
 
-            page_result = download_html(resultlist['url'].replace('ResultList', 'StartList'))
-            for line in page_result.find('div', {'class': 'blocktable'}).find_all('div', {"class": "entryline"}):
-                bib = line.find('div', {'class': 'col-1'}).find('div', {'class': 'secondline'}).text.strip()
-                category = line.find('div', {'class': 'col-5'}).find('div', {'class': 'firstline'}).text.strip()
-                resultlist['categories'][bib] = category
+                page_result = download_html(resultlist['url'].replace('ResultList', 'StartList'))
+                for line in page_result.find('div', {'class': 'blocktable'}).find_all('div', {"class": "entryline"}):
+                    bib = line.find('div', {'class': 'col-1'}).find('div', {'class': 'secondline'}).text.strip()
+                    category = line.find('div', {'class': 'col-5'}).find('div', {'class': 'firstline'}).text.strip()
+                    resultlist['categories'][bib] = category
 
 
 # THIS NEEDS EXTRA WORK

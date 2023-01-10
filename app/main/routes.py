@@ -26,6 +26,8 @@ def index():
             comp['domain'] = 'uitslagen.atletiek.nl'
         elif domain == 'GER':
             comp['domain'] = 'ergebnisse.leichtathletik.de'
+        elif domain == 'LUX':
+            comp['domain'] = 'laportal.net'
 
         get_competition_info_xml(comp)
         comp['status'] = 'Not downloaded'
