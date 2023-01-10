@@ -16,6 +16,23 @@ def save_to_file(comp):
         outfile.write(json.dumps(comp['athletes'], sort_keys=True, indent=2, ensure_ascii=False))
 
 
+def download_competition_results(app, comp):
+    with app.app_context():
+        get_competition_info_xml(comp)
+        if comp['source'] == 'html':
+            get_results_from_lists(comp)
+        elif comp['source'] == 'xml':
+            get_results_from_xml(comp)
+
+        find_results(comp)
+
+        comp['status'] = 'Ready'
+        Competitions.save_dict(comp)
+
+        save_to_file(comp)
+        return comp
+
+
 def async_download_competition_results(app, id, full_reload=False):
     with app.app_context():
         comp = Competitions.load_dict(id)

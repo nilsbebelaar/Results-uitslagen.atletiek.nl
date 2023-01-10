@@ -66,8 +66,6 @@ def get_json(id):
         'domain': url_args['domain']
     }
 
-    get_competition_info_xml(comp)
-    comp = async_download_competition_results(current_app._get_current_object(), id, full_reload=True)
+    comp = download_competition_results(current_app._get_current_object(), comp)
     json_string = json.dumps(comp['athletes'], sort_keys=True, ensure_ascii=False)
     return json_string
-
