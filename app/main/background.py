@@ -223,10 +223,11 @@ def get_results_from_lists(comp):
 
         # Find the date of the result list
         listheaders = page_result.find_all('div', {'class': 'listheader'})
-        if len(listheaders) <= 2:
-            date_string = listheaders[0].find_all('div')[-1].text.strip()[:10]
-        if len(listheaders) == 3:
-            date_string = listheaders[1].find_all('div')[-1].text.strip()[:10]
+        for listheader in listheaders:
+            if len(listheader.find_all('div', recursive=False)) == 2:
+                date_string = listheader.find_all('div')[-1].text.strip()[:10]
+                break
+
         resultlist['date'] = datetime.strftime(datetime.strptime(date_string, "%d.%m.%Y"), '%d-%m-%Y')
 
         resultlist['results'] = []
