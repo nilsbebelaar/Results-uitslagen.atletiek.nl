@@ -267,7 +267,7 @@ def parse_event_detail(detail):
     if detail:
         if detail[-2:] == 'mm':  # Detail contains Hurdle Heights
             value = int(re.findall(r'\d+', detail)[0])
-            return f' {int(value/10)}cm'  # Convert to whole cm
+            return f' {round(value/10)}cm'  # Convert to whole cm
         elif detail[-1] == 'g':
             value = int(re.findall(r'\d+', detail)[0])
             if value >= 1000:
