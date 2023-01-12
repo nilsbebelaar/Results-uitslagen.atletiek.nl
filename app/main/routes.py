@@ -63,7 +63,7 @@ def list():
 @main_bp.route('/reload/<id>', methods=['GET'])
 def reload(id):
     comp = Competitions.load_dict(id)
-    comp = {'id': id, 'type': comp['type'], 'name': comp['name']}
+    comp = {'id': id, 'name': comp['name']}
     comp['status'] = 'Downloading'
     Competitions.save_dict(comp)
 
