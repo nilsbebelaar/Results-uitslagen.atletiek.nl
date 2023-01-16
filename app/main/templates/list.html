@@ -23,7 +23,9 @@
       <tr>
         <td class="has-text-centered">{{comp.date_print}}</td>
         <td> <span class="has-tooltip-top has-tooltip-arrow" style="border-bottom: none;"
-            data-tooltip="Wedstrijd ID: {{comp.id}}">{{comp.name}}</span></td>
+            data-tooltip="Wedstrijd ID: {{comp.id}}">
+            <a href="https://{{comp.domain}}/Competitions/Details/{{comp.id}}" target="_blank">{{comp.name}}</a></span>
+        </td>
         <td>{{comp.location}}</td>
         <td><span class="has-tooltip-top has-tooltip-arrow" style="border-bottom: none;" data-tooltip="{{comp.domain}}">
             <span class="flag flag-ioc-{{comp.country|lower}}"></span>{{comp.source}}</span></td>
