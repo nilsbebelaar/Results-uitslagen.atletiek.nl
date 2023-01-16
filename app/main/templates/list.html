@@ -25,12 +25,8 @@
         <td> <span class="has-tooltip-top has-tooltip-arrow" style="border-bottom: none;"
             data-tooltip="Wedstrijd ID: {{comp.id}}">{{comp.name}}</span></td>
         <td>{{comp.location}}</td>
-        <td><span class="has-tooltip-top has-tooltip-arrow" style="border-bottom: none;"
-          data-tooltip="{{comp.domain}}"><img class="flag" src="https://flagicons.lipis.dev/flags/4x3/
-          {%- if comp.country == 'GER' -%}de{%- endif -%}
-          {%- if comp.country == 'NED' -%}nl{%- endif -%}
-          {%- if comp.country == 'LUX' -%}lu{%- endif -%}
-          .svg">{{comp.source}}</span></td>
+        <td><span class="has-tooltip-top has-tooltip-arrow" style="border-bottom: none;" data-tooltip="{{comp.domain}}">
+            <span class="flag flag-ioc-{{comp.country|lower}}"></span>{{comp.source}}</span></td>
         <td class="has-text-centered">{{comp.number_of_lists}}</td>
         <td class="has-text-centered">{{comp.status}}</td>
         <td class="has-text-centered">
