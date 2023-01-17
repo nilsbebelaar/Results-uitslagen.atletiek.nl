@@ -101,23 +101,17 @@ def find_results(comp):
 
 def download_xml(comp):
     comp['url'] = 'https://' + comp['domain'] + '/Competitions/Details/' + str(comp['id'])
-    session = requests.session()
-
-    # XML page with competition information
-    response = session.get(comp['url'] + '/ladvxml', headers=headers)
-    xml = xmltodict.parse(response.text, process_namespaces=True)
-
-    session.close()
+    with requests.session() as s:
+        # XML page with competition information
+        response = s.get(comp['url'] + '/ladvxml', headers=headers, cookies=cookies)
+        xml = xmltodict.parse(response.text, process_namespaces=True)
     return xml['meetingresult']
 
 
 def download_html(url):
-    session = requests.session()
-
-    response = session.get(url, headers=headers)
-    page_result = BeautifulSoup(response.text, 'html.parser')
-
-    session.close()
+    with requests.session() as s:
+        response = s.get(url, headers=headers, cookies=cookies)
+        page_result = BeautifulSoup(response.text, 'html.parser')
     return page_result
 
 
