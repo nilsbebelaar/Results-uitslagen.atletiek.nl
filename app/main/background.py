@@ -133,7 +133,8 @@ def get_competition_info_xml(comp):
         'name': c['@name']
     } for c in xml['clubs']['club']]
 
-    comp['athletes'] = [{
+    comp['athletes'] = {a['@number']:
+                        {
         'club': find_by_id(clubs, a['@club'], 'name'),
         'country': a['@country'],
         'birthdate': parse_date(a['@dateofbirth'][:10], '%Y-%m-%d') if '@dateofbirth' in a else None,
@@ -144,7 +145,7 @@ def get_competition_info_xml(comp):
         'licencenumber': a['@licencenumber'],
         'bib': a['@number'],
         'sex': 'male' if a['@sex'] == 'M' else ('female' if a['@sex'] == 'W' else '')
-    } for a in xml['athletes']['athlete']]
+    } for a in xml['athletes']['athlete']}
 
     comp['days'] = calc_day_difference(comp['begindate'], comp['enddate'], '%Y-%m-%d') + 1
 
