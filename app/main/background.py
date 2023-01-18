@@ -55,7 +55,9 @@ def async_download_competition_results(app, id, full_reload=False):
         return comp
 
 
-def find_results(comp):
+def find_results_xml(comp):
+    # Remove bib number as index
+    comp['athletes'] = [athlete for athlete in comp['athletes'].values()]
     for athlete in comp['athletes']:
         athlete['competition'] = {
             'name': comp['name'],
@@ -64,37 +66,18 @@ def find_results(comp):
         }
         athlete['SELTECLOOKUP'] = '1' if athlete['licencenumber'] == '0' else '0'
         athlete['results'] = []
-        if comp['source'] == 'html':
-            # For every athlete, loop through all results
-            for resultlist in comp['resultlists']:
-                for result in resultlist['results']:
-                    # If a athlete's bib-number exists in the results, append the result to the athlete['results'] list
-                    if athlete['bib'] == result['bib']:
-                        if resultlist['is_highjump']:
-                            result['category'] = resultlist['categories'][athlete['bib']]
 
-                        if result['category'] in ['MASTERSM', 'MASTERSV']:
-                            result['category'] = result['category'] + ' ' + athlete['birthyear']
-
-                        athlete['results'].append({
-                            'event': parse_event_name(resultlist['raw_name']) + parse_event_detail(result['event_detail']),  # result['category'], athlete['birthyear']),
-                            'result': result['result'],
-                            'url': resultlist['url'],
-                            'date': resultlist['date'],
-                            'category': result['category']
-                        })
-        elif comp['source'] == 'xml':
-            for result in find_by_id(comp['results'], athlete['id'], [], 'athlete_id'):
-                athlete['results'].append({
-                    'event': find_by_id(comp['events'], result['event_id'], 'name'),
-                    'result': result['result'],
-                    'url': comp['url'],
-                    'date': result['date'],
-                    'category': result['category']
-                })
+        for result in find_by_id(comp['results'], athlete['id'], [], 'athlete_id'):
+            athlete['results'].append({
+                'event': find_by_id(comp['events'], result['event_id'], 'name'),
+                'result': result['result'],
+                'url': comp['url'],
+                # 'category': result['category'],
+                'date': result['date']
+            })
         athlete.pop('id', None)
 
-    # Remove competitors if the have no results
+    # Remove competitors if they have no results
     comp['athletes'] = [athlete for athlete in comp['athletes'] if athlete['results']]
 
 
