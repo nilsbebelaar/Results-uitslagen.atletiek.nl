@@ -20,16 +20,15 @@ def download_competition_results(app, comp):
     with app.app_context():
         get_competition_info_xml(comp)
         if comp['source'] == 'html':
-            get_results_from_lists(comp)
+            get_all_results(comp)
+            cleanup_athletes(comp)
         elif comp['source'] == 'xml':
             get_results_from_xml(comp)
-
-        find_results(comp)
+            find_results_xml(comp)
 
         comp['status'] = 'Ready'
-        Competitions.save_dict(comp)
-
         save_to_file(comp)
+        Competitions.save_dict(comp)
         return comp
 
 
@@ -43,15 +42,14 @@ def async_download_competition_results(app, id, full_reload=False):
             get_competition_info_xml(comp)
 
         if comp['source'] == 'html':
-            get_results_from_lists(comp)
+            get_all_results(comp)
+            cleanup_athletes(comp)
         elif comp['source'] == 'xml':
             get_results_from_xml(comp)
-
-        find_results(comp)
+            find_results_xml(comp)
 
         comp['status'] = 'Ready'
         Competitions.save_dict(comp)
-
         save_to_file(comp)
         return comp
 
@@ -111,7 +109,7 @@ def download_xml(comp):
 def download_html(url):
     with requests.session() as s:
         response = s.get(url, headers=headers, cookies=cookies)
-        page_result = BeautifulSoup(response.text, 'html.parser')
+        page_result = BeautifulSoup(response.text, 'html5lib')
     return page_result
 
 
@@ -144,7 +142,8 @@ def get_competition_info_xml(comp):
         'id': a['@id'],
         'licencenumber': a['@licencenumber'],
         'bib': a['@number'],
-        'sex': 'male' if a['@sex'] == 'M' else ('female' if a['@sex'] == 'W' else '')
+        'sex': 'male' if a['@sex'] == 'M' else ('female' if a['@sex'] == 'W' else ''),
+        'results': []
     } for a in xml['athletes']['athlete']}
 
     comp['days'] = calc_day_difference(comp['begindate'], comp['enddate'], '%Y-%m-%d') + 1
@@ -250,7 +249,70 @@ def get_results_from_lists(comp):
                     resultlist['categories'][bib] = category
 
 
-# THIS NEEDS EXTRA WORK
+def get_all_results(comp):
+    page_result = download_html(comp['url'].replace('Details', 'Resultoverview'))
+    content = page_result.select('#seltecdlv>div, #content>div')
+
+    for div in content:
+        classes = div.get('class')
+        if ('listheader' not in classes) and ('runblock' not in classes):
+            continue
+
+        if 'listheader' in classes:
+            current_list = {}
+            current_list['url'] = 'https://' + comp['domain'] + div.select_one('.leftheader a')['href']
+            current_list['raw_name'] = div.select_one('.leftheader a').text.strip()
+            date_string = div('div')[-1].text.strip()[:10]
+            try:
+                current_list['date'] = datetime.strftime(datetime.strptime(date_string, "%d.%m.%Y"), '%d-%m-%Y')
+            except:
+                current_list['date'] = ''
+
+            continue
+
+        if 'runblock' in classes:
+            current_list['category'] = [c for c in classes if 'c-' in c][0].split('-')[-1]
+            wind_string = div.select_one('.rightwind').text.strip().replace('Wind:', '').replace(', m/s', '')
+            current_list['winds'] = {}
+            if wind_string:
+                # Parse wind to dict
+                for index_colon, index_space in zip([i for i in findall(':', wind_string)], [i for i in findall(' ', wind_string)]):
+                    if (len(wind_string) <= index_colon+1) or (wind_string[index_colon+1] == ','):
+                        current_list['winds'][wind_string[index_space+1:index_colon]] = ''
+                    else:
+                        current_list['winds'][wind_string[index_space+1:index_colon]] = wind_string[index_colon+1:index_colon+5] if wind_string[index_colon+1] in [
+                            '+', '-'] else wind_string[index_colon+1:index_colon+4]
+
+            for line in div.select('.entryline'):
+                bib = line.select_one('.col-1 .secondline').text.strip()
+                if bib in comp['athletes']:
+                    detail = line.select('.col-4 .secondline')[-1].text.strip() if line.select('.col-4 .secondline') else ''
+                    heat = line.select_one('.col-6 .firstline').text.strip().split('/')[-1]
+                    comp['athletes'][bib]['results'].append({
+                        'result': line.select_one('.col-4 .firstline').text.strip(),
+                        # 'category': line.select('.col-4 .firstline')[-1].text.strip(),
+                        'event': parse_event_name(current_list['raw_name']) + parse_event_detail(detail),
+                        'url': current_list['url'],
+                        'date': current_list['date'],
+                        'wind': current_list['winds'][heat] if current_list['winds'] and heat else ''
+                    })
+            continue
+
+
+def cleanup_athletes(comp):
+    # Remove competitors if they have no results, also remove bib as index
+    comp['athletes'] = [athlete for athlete in comp['athletes'].values() if athlete['results']]
+
+    for athlete in comp['athletes']:
+        athlete['competition'] = {
+            'name': comp['name'],
+            'location': comp['location'],
+            'url': comp['url']
+        }
+        athlete['SELTECLOOKUP'] = '1' if athlete['licencenumber'] == '0' else '0'
+        athlete.pop('id', None)
+
+
 def parse_event_name(event_name):
     event_name_splitted = event_name.lower().split()
     if event_name_splitted[0] in ['shot', 'long', 'high'] or event_name_splitted[1] in ['horden', 'hurdles', 'hürden']:
@@ -270,3 +332,12 @@ def parse_event_detail(detail):
             else:
                 return f' {value}g'  # Leave in g for values lower than 1000g
     return ''
+
+
+def findall(p, s):
+    '''Yields all the positions of
+    the pattern p in the string s.'''
+    i = s.find(p)
+    while i != -1:
+        yield i
+        i = s.find(p, i+1)

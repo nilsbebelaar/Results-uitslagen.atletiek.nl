@@ -7,3 +7,4 @@ Flask_SQLAlchemy
 environs
 python-dotenv
 xmltodict
+html5lib
