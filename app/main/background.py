@@ -9,6 +9,7 @@ from app.models import Competitions
 
 
 headers = {'accept-language': 'nl'}
+cookies = {'culture': 'nl'}
 
 
 def save_to_file(comp):
