@@ -33,26 +33,26 @@ def download_competition_results(app, comp):
         return comp
 
 
-def async_download_competition_results(app, id, full_reload=False):
+def async_download_competition_results(app, ids, full_reload=False):
     with app.app_context():
-        comp = Competitions.load_dict(id)
-        if not comp:
-            return
+        for id in ids:
+            comp = Competitions.load_dict(id)
+            if not comp:
+                return
 
-        if full_reload:
-            get_competition_info_xml(comp)
+            if full_reload:     
+                get_competition_info_xml(comp)
 
-        if comp['source'] == 'html':
-            get_all_results(comp)
-            cleanup_athletes(comp)
-        elif comp['source'] == 'xml':
-            get_results_from_xml(comp)
-            find_results_xml(comp)
+            if comp['source'] == 'html':
+                get_all_results(comp)
+                cleanup_athletes(comp)
+            elif comp['source'] == 'xml':
+                get_results_from_xml(comp)
+                find_results_xml(comp)
 
-        comp['status'] = 'Ready'
-        Competitions.save_dict(comp)
-        save_to_file(comp)
-        return comp
+            comp['status'] = 'Ready'
+            Competitions.save_dict(comp)
+            save_to_file(comp)
 
 
 def find_results_xml(comp):

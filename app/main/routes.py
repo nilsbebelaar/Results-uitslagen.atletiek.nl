@@ -48,7 +48,7 @@ def add(id):
         comp['status'] = 'Downloading'
         Competitions.save_dict(comp)
 
-        Thread(target=async_download_competition_results, args=(current_app._get_current_object(), id)).start()
+        Thread(target=async_download_competition_results, args=(current_app._get_current_object(), [id])).start()
 
         flash(f"Wedstrijd '{comp['name']}' wordt toegevoegd", 'info')
         return redirect(url_for('main.list'))
@@ -67,7 +67,24 @@ def reload(id):
     comp['status'] = 'Downloading'
     Competitions.save_dict(comp)
 
-    Thread(target=async_download_competition_results, args=(current_app._get_current_object(), id, True)).start()
+    Thread(target=async_download_competition_results, args=(current_app._get_current_object(), [id], True)).start()
 
     flash(f"Wedstrijd '{comp['name']}' wordt opnieuw gedownload", 'info')
+    return redirect(url_for('main.list'))
+
+
+@main_bp.route('/reload_all', methods=['GET'])
+def reload_all():
+    ids = [c.id for c in Competitions.query.all()]
+    print(ids)
+
+    for id in ids:
+        comp = Competitions.load_dict(id)
+        comp = {'id': id, 'name': comp['name']}
+        comp['status'] = 'Downloading'
+        Competitions.save_dict(comp)
+
+    Thread(target=async_download_competition_results, args=(current_app._get_current_object(), ids, True)).start()
+
+    flash(f"Alle wedstrijden worden opnieuw gedownload", 'info')
     return redirect(url_for('main.list'))

@@ -32,7 +32,7 @@ def add(id):
     comp['status'] = 'Loading'
     Competitions.save_dict(comp)
 
-    Thread(target=async_download_competition_results, args=(current_app._get_current_object(), id)).start()
+    Thread(target=async_download_competition_results, args=(current_app._get_current_object(), [id])).start()
 
     return f"Wedstrijd '{comp['name']}' wordt toegevoegd"
 
