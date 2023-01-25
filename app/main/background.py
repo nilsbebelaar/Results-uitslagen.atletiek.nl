@@ -237,6 +237,7 @@ def get_all_results(comp):
                         'result': line.select_one('.col-4 .firstline').text.strip(),
                         # 'category': line.select('.col-4 .firstline')[-1].text.strip(),
                         'event': parse_event_name(current_list['raw_name']) + parse_event_detail(detail),
+                        'event_raw': current_list['raw_name'] + parse_event_detail(detail),
                         'url': current_list['url'],
                         'date': current_list['date'],
                         'wind': current_list['winds'][heat] if current_list['winds'] and heat else ''
@@ -260,8 +261,18 @@ def cleanup_athletes(comp):
 
 def parse_event_name(event_name):
     event_name_splitted = event_name.lower().split()
-    if event_name_splitted[0] in ['shot', 'long', 'high'] or event_name_splitted[1] in ['horden', 'hurdles', 'hürden']:
+    meerkampbenamingen = ['pentathlon', 'pentahtlon', 'meerkamp', 'kamp', 'kampf']
+    for i, name_part in enumerate(event_name_splitted):
+        if name_part in meerkampbenamingen:
+            event_name_splitted = event_name_splitted[i+1:]
+            break
+        if i > 2:
+            break
+
+    if event_name_splitted[0] in ['shot', 'long', 'high', 'pole', 'triple'] or event_name_splitted[1] in ['h', 'horden', 'hurdles', 'hurldes', 'hürden', 'haies', 'jump', 'lourd', 'throw', 'zone']:
         return event_name_splitted[0] + ' ' + event_name_splitted[1]
+    elif event_name_splitted[1] in ['race']:
+        return event_name_splitted[0] + ' ' + event_name_splitted[1] + ' ' + event_name_splitted[2]
     return event_name_splitted[0]
 
 
