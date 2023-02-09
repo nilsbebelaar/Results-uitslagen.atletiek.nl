@@ -6,7 +6,10 @@ basedir = path.abspath(path.dirname(__file__))
 load_dotenv(path.join(basedir, '.env'))
 env = Env()
 
-ALLOWED_DOMAINS = ['uitslagen.atletiek.nl', 'ergebnisse.leichtathletik.de', 'laportal.net']
+ALLOWED_DOMAINS = ['uitslagen.atletiek.nl', 
+                   'ergebnisse.leichtathletik.de', 
+                   'laportal.net',
+                   'slv.laportal.net']
 
 
 class Config:
