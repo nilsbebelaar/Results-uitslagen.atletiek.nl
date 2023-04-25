@@ -197,7 +197,6 @@ def get_results_from_xml(comp):
 def get_all_results(comp):
     page_result = download_html(comp['url'].replace('Details', 'Resultoverview'))
     content = page_result.select('#seltecdlv>div, #content>div')
-
     for div in content:
         classes = div.get('class')
         if ('listheader' not in classes) and ('runblock' not in classes):
@@ -228,9 +227,13 @@ def get_all_results(comp):
                         current_list['winds'][wind_string[index_space+1:index_colon]] = wind_string[index_colon+1:index_colon+5] if wind_string[index_colon+1] in [
                             '+', '-'] else wind_string[index_colon+1:index_colon+4]
 
+            has_competitie_teams = True if div.select_one('.resultblock .blockheader .col-2 .secondline').text.strip().lower() == 'team' else False
+
             for line in div.select('.entryline'):
                 bib = line.select_one('.col-1 .secondline').text.strip()
                 if bib in comp['athletes']:
+                    if has_competitie_teams:
+                        comp['athletes'][bib]['team'] = line.select_one('.col-2 .secondline').text.strip() if line.select('.col-2 .secondline') else None
                     detail = line.select('.col-4 .secondline')[-1].text.strip() if line.select('.col-4 .secondline') else ''
                     heat = line.select_one('.col-6 .firstline').text.strip().split('/')[-1]
                     comp['athletes'][bib]['results'].append({
