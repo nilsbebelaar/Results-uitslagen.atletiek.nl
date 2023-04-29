@@ -276,7 +276,7 @@ def parse_event_name(event_name):
         if name_part in meerkampbenamingen:
             event_name_splitted = event_name_splitted[i+1:]
             break
-        if i > 2:
+        if i >= 2:
             break
 
     if event_name_splitted[0] in ['shot', 'long', 'high', 'pole', 'triple'] or event_name_splitted[1] in ['h', 'horden', 'hurdles', 'hurldes', 'hürden', 'haies', 'jump', 'lourd', 'throw', 'zone']:
