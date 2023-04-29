@@ -40,7 +40,7 @@ def async_download_competition_results(app, ids, full_reload=False):
             if not comp:
                 return
 
-            if full_reload:     
+            if full_reload:
                 get_competition_info_xml(comp)
 
             if comp['source'] == 'html':
@@ -109,26 +109,33 @@ def get_competition_info_xml(comp):
     comp['location'] = xml['@city']
     comp['name'] = xml['@name']
 
-    clubs = [{
-        'country': c['@country'],
-        'id': c['@id'],
-        'name': c['@name']
-    } for c in xml['clubs']['club']]
+    if type(xml['clubs']['club']) is list:
+        clubs = [{
+            'country': c['@country'],
+            'id': c['@id'],
+            'name': c['@name']
+        } for c in xml['clubs']['club']]
+    else:
+        clubs = [{
+            'country': xml['clubs']['club']['@country'],
+            'id': xml['clubs']['club']['@id'],
+            'name': xml['clubs']['club']['@name']
+        }]
 
-    comp['athletes'] = {a['@number']:
-                        {
-        'club': find_by_id(clubs, a['@club'], 'name'),
-        'country': a['@country'],
-        'birthdate': parse_date(a['@dateofbirth'][:10], '%Y-%m-%d') if '@dateofbirth' in a else None,
-        'birthyear': a['@yearofbirth'],
-        'firstname': a['@forename'],
-        'lastname': a['@lastname'],
-        'id': a['@id'],
-        'licencenumber': a['@licencenumber'],
-        'bib': a['@number'],
-        'sex': 'male' if a['@sex'] == 'M' else ('female' if a['@sex'] == 'W' else ''),
-        'results': []
-    } for a in xml['athletes']['athlete']}
+    comp['athletes'] = {
+        a['@number']: {
+            'club': find_by_id(clubs, a['@club'], 'name'),
+            'country': a['@country'],
+            'birthdate': parse_date(a['@dateofbirth'][:10], '%Y-%m-%d') if '@dateofbirth' in a else None,
+            'birthyear': a['@yearofbirth'],
+            'firstname': a['@forename'],
+            'lastname': a['@lastname'],
+            'id': a['@id'],
+            'licencenumber': a['@licencenumber'],
+            'bib': a['@number'],
+            'sex': 'male' if a['@sex'] == 'M' else ('female' if a['@sex'] == 'W' else ''),
+            'results': []
+        } for a in xml['athletes']['athlete']}
 
     comp['days'] = calc_day_difference(comp['begindate'], comp['enddate'], '%Y-%m-%d') + 1
 
