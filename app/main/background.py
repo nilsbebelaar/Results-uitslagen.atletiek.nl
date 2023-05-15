@@ -236,6 +236,11 @@ def get_all_results(comp):
 
             has_competitie_teams = True if div.select_one('.resultblock .blockheader .col-2 .secondline').text.strip().lower() == 'team' else False
 
+            multiple_attempts = False
+            if div.select('.blockheader .col-detailresult'):
+                if re.search("[a-z/A-Z]1", div.select_one('.blockheader .col-detailresult').text.strip()):
+                    multiple_attempts = True
+
             for line in div.select('.entryline'):
                 bib = line.select_one('.col-1 .secondline').text.strip()
                 if bib in comp['athletes']:
@@ -243,14 +248,30 @@ def get_all_results(comp):
                         comp['athletes'][bib]['team'] = line.select_one('.col-2 .secondline').text.strip() if line.select('.col-2 .secondline') else None
                     detail = line.select('.col-4 .secondline')[-1].text.strip() if line.select('.col-4 .secondline') else ''
                     heat = line.select_one('.col-6 .firstline').text.strip().split('/')[-1]
+
+                    if multiple_attempts:
+                        attempts = [{
+                            'result': a.find_next('div').text.strip(),
+                            'wind': a.select_one('.secondline').text.strip().replace('(', '').replace(')', '') if a.select('.secondline') else ''
+                        } for a in line.select('.col-detailresult')]
+                        best_attempt = [{
+                            'result': line.select_one('.col-4 .firstline').text.strip(),
+                            'wind': line.select_one('.col-4 .secondline').text.strip().replace('(', '').replace(')', '')
+                        }]
+                    else:
+                        attempts = ''
+                        best_attempt = [{
+                            'result': line.select_one('.col-4 .firstline').text.strip(),
+                            'wind': current_list['winds'][heat] if current_list['winds'] and heat else ''
+                        }]
+
                     comp['athletes'][bib]['results'].append({
-                        'result': line.select_one('.col-4 .firstline').text.strip(),
-                        # 'category': line.select('.col-4 .firstline')[-1].text.strip(),
+                        'best_attempt': best_attempt,
+                        'attempts': attempts,
                         'event': parse_event_name(current_list['raw_name']) + parse_event_detail(detail),
                         'event_raw': current_list['raw_name'] + parse_event_detail(detail),
                         'url': current_list['url'],
                         'date': current_list['date'],
-                        'wind': current_list['winds'][heat] if current_list['winds'] and heat else ''
                     })
             continue
 
