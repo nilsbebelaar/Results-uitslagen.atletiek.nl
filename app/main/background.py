@@ -260,10 +260,10 @@ def get_all_results(comp):
                         }]
                     else:
                         attempts = ''
-                        best_attempt = [{
+                        best_attempt = {
                             'result': line.select_one('.col-4 .firstline').text.strip(),
                             'wind': current_list['winds'][heat] if current_list['winds'] and heat else ''
-                        }]
+                        }
 
                     comp['athletes'][bib]['results'].append({
                         'best_attempt': best_attempt,
