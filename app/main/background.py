@@ -300,7 +300,7 @@ def parse_event_name(event_name):
         if i >= 2:
             break
 
-    if event_name_splitted[0] in ['shot', 'long', 'high', 'pole', 'triple'] or event_name_splitted[1] in ['h', 'horden', 'hurdles', 'hurldes', 'hürden', 'haies', 'jump', 'lourd', 'throw', 'zone']:
+    if event_name_splitted[0] in ['shot', 'long', 'high', 'pole', 'triple'] or event_name_splitted[1] in ['h', 'horden', 'hurdles', 'hurldes', 'hürden', 'haies', 'hindernis', 'steeple', 'jump', 'lourd', 'throw', 'zone']:
         return event_name_splitted[0] + ' ' + event_name_splitted[1]
     elif event_name_splitted[1] in ['race']:
         return event_name_splitted[0] + ' ' + event_name_splitted[1] + ' ' + event_name_splitted[2]
