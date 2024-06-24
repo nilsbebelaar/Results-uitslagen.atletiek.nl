@@ -47,8 +47,29 @@
     </tbody>
   </table>
 </div>
-
-
-
-
+<nav class="pagination is-centered" role="navigation" aria-label="pagination">
+  {% if comps.has_prev %}
+  <a href="?p={{comps.prev_num}}{% if custom_pp %}&per_page={{per_page}}{% endif %}" class="pagination-previous">Previous</a>
+  {% endif %}
+  {% if comps.has_next %}
+  <a href="?p={{comps.next_num}}{% if custom_pp %}&per_page={{per_page}}{% endif %}" class="pagination-next">Next page</a>
+  {% endif %}
+  <ul class="pagination-list">
+    {% if comps.page > 2 %}
+    <li><a href="?p=1{% if custom_pp %}&per_page={{per_page}}{% endif %}" class="pagination-link" aria-label="Goto page 1">1</a></li>
+    <li><span class="pagination-ellipsis">&hellip;</span></li>
+    {% endif %}
+    {% if comps.page > 1 %}
+    <li><a href="?p={{comps.prev_num}}{% if custom_pp %}&per_page={{per_page}}{% endif %}" class="pagination-link" aria-label="Goto page {{comps.prev_num}}">{{comps.prev_num}}</a></li>
+    {% endif %}
+    <li><a class="pagination-link is-current" aria-label="Page {{comps.page}}" aria-current="page">{{comps.page}}</a></li>
+    {% if comps.pages - comps.page >= 1 %}
+    <li><a href="?p={{comps.next_num}}{% if custom_pp %}&per_page={{per_page}}{% endif %}" class="pagination-link" aria-label="Goto page {{comps.next_num}}">{{comps.next_num}}</a></li>
+    {% endif %}
+    {% if comps.pages - comps.page >= 2 %}
+    <li><span class="pagination-ellipsis">&hellip;</span></li>
+    <li><a href="?p={{comps.pages}}{% if custom_pp %}&per_page={{per_page}}{% endif %}" class="pagination-link" aria-label="Goto page {{comps.pages}}">{{comps.pages}}</a></li>
+    {% endif %}
+  </ul>
+</nav>
 {% endblock %}

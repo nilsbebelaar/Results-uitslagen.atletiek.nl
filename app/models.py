@@ -60,5 +60,5 @@ class Competitions(db.Model):
         db.session.commit()
 
     @staticmethod
-    def list():
-        return Competitions.query.order_by(desc(Competitions.begindate)).all()
+    def list(page, per_page):
+        return Competitions.query.order_by(desc(Competitions.begindate)).paginate(page=page, per_page=per_page)

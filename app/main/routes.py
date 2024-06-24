@@ -58,8 +58,11 @@ def add(id):
 
 @main_bp.route('/list', methods=['GET'])
 def list():
-    comps = Competitions.list()
-    return render_template('list.html', comps=comps)
+    page = int(request.args.get('p', 1))
+    per_page = int(request.args.get('per_page', 25))
+    custom_pp = per_page != 25
+    comps = Competitions.list(page, per_page)
+    return render_template('list.html', comps=comps, page=page, per_page=per_page, custom_pp=custom_pp)
 
 
 @main_bp.route('/reload/<id>', methods=['GET'])
