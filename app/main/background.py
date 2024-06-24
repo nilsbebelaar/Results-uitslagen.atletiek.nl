@@ -151,21 +151,6 @@ def get_competition_info_xml(comp):
                 comp['resultlists'].append(resultlist)
 
 
-def calc_day_difference(startdate_string, enddate_string, format):
-    return (datetime.strptime(enddate_string, format) - datetime.strptime(startdate_string, format)).days
-
-
-def parse_date(date_string, format_in, format_out='%d-%m-%Y'):
-    return datetime.strftime(datetime.strptime(date_string, format_in), format_out)
-
-
-def find_by_id(searchlist, id, findindex, searchindex='id'):
-    if type(findindex) is list:
-        return [c for c in searchlist if c[searchindex] == id]
-    else:
-        return [c[findindex] for c in searchlist if c[searchindex] == id][0]
-
-
 def get_results_from_xml(comp):
     xml = download_xml(comp)
     comp['results'] = []
@@ -328,3 +313,18 @@ def findall(p, s):
     while i != -1:
         yield i
         i = s.find(p, i+1)
+
+
+def calc_day_difference(startdate_string, enddate_string, format):
+    return (datetime.strptime(enddate_string, format) - datetime.strptime(startdate_string, format)).days
+
+
+def parse_date(date_string, format_in, format_out='%d-%m-%Y'):
+    return datetime.strftime(datetime.strptime(date_string, format_in), format_out)
+
+
+def find_by_id(searchlist, id, findindex, searchindex='id'):
+    if type(findindex) is list:
+        return [c for c in searchlist if c[searchindex] == id]
+    else:
+        return [c[findindex] for c in searchlist if c[searchindex] == id][0]
