@@ -10,6 +10,10 @@ from app.models import Competitions
 
 headers = {'accept-language': 'nl'}
 cookies = {'culture': 'nl'}
+RECORD_TEXTS = [
+    'Records',
+    'Rekorde'
+]
 
 
 def save_to_file(comp):
@@ -187,17 +191,22 @@ def get_results_from_xml(comp):
 
 
 def get_all_results(comp):
-    page_result = download_html(comp['url'].replace('Details', 'Resultoverview'))
+    if '4x' in list['raw_name'] or '4 x' in list['raw_name']: #Skip relays
+        continue
+    page_result = download_html(list['url'])
     content = page_result.select('#seltecdlv>div, #content>div')
+    
     for div in content:
         classes = div.get('class')
+        if not classes: #skip empty divs
+            continue
         if ('listheader' not in classes) and ('runblock' not in classes):
             continue
 
         if 'listheader' in classes:
             current_list = {}
-            current_list['url'] = 'https://' + comp['domain'] + div.select_one('.leftheader a')['href']
-            current_list['raw_name'] = div.select_one('.leftheader a').text.strip()
+            current_list['url'] = list['url']
+            current_list['raw_name'] = div.select_one('.leftheader').text.strip()
             date_string = div('div')[-1].text.strip()[:10]
             try:
                 current_list['date'] = datetime.strftime(datetime.strptime(date_string, "%d.%m.%Y"), '%d-%m-%Y')
@@ -207,7 +216,11 @@ def get_all_results(comp):
             continue
 
         if 'runblock' in classes:
-            current_list['category'] = [c for c in classes if 'c-' in c][0].split('-')[-1]
+            if 'heatblock' in classes: #skip indivudual heats as we get results from total result list
+                continue
+            if div.select_one('.blockname'):
+                if div.select_one('.blockname .leftname').text.strip() in RECORD_TEXTS:
+                    continue
             wind_string = div.select_one('.rightwind').text.strip().replace('Wind:', '').replace(', m/s', '')
             current_list['winds'] = {}
             if wind_string:
