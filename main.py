@@ -1,9 +1,9 @@
 from app.main.background import get_competition_info_xml, get_all_results, cleanup_athletes, save_to_file
 
 comp = {
-    'id': 9396,
+    'id': 13442,
     'source': 'html',
-    'domain': 'uitslagen.atletiek.nl'
+    'domain': 'slv.laportal.net'
 }
 
 get_competition_info_xml(comp)
