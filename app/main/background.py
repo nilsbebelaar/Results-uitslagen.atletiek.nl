@@ -191,87 +191,88 @@ def get_results_from_xml(comp):
 
 
 def get_all_results(comp):
-    if '4x' in list['raw_name'] or '4 x' in list['raw_name']: #Skip relays
-        continue
-    page_result = download_html(list['url'])
-    content = page_result.select('#seltecdlv>div, #content>div')
-    
-    for div in content:
-        classes = div.get('class')
-        if not classes: #skip empty divs
+    for list in comp['resultlists']:
+        if '4x' in list['raw_name'] or '4 x' in list['raw_name']:  # Skip relays
             continue
-        if ('listheader' not in classes) and ('runblock' not in classes):
-            continue
+        page_result = download_html(list['url'])
+        content = page_result.select('#seltecdlv>div, #content>div')
 
-        if 'listheader' in classes:
-            current_list = {}
-            current_list['url'] = list['url']
-            current_list['raw_name'] = div.select_one('.leftheader').text.strip()
-            date_string = div('div')[-1].text.strip()[:10]
-            try:
-                current_list['date'] = datetime.strftime(datetime.strptime(date_string, "%d.%m.%Y"), '%d-%m-%Y')
-            except:
-                current_list['date'] = ''
-
-            continue
-
-        if 'runblock' in classes:
-            if 'heatblock' in classes: #skip indivudual heats as we get results from total result list
+        for div in content:
+            classes = div.get('class')
+            if not classes:  # skip empty divs
                 continue
-            if div.select_one('.blockname'):
-                if div.select_one('.blockname .leftname').text.strip() in RECORD_TEXTS:
+            if ('listheader' not in classes) and ('runblock' not in classes):
+                continue
+
+            if 'listheader' in classes:
+                current_list = {}
+                current_list['url'] = list['url']
+                current_list['raw_name'] = div.select_one('.leftheader').text.strip()
+                date_string = div('div')[-1].text.strip()[:10]
+                try:
+                    current_list['date'] = datetime.strftime(datetime.strptime(date_string, "%d.%m.%Y"), '%d-%m-%Y')
+                except:
+                    current_list['date'] = ''
+
+                continue
+
+            if 'runblock' in classes:
+                if 'heatblock' in classes:  # skip indivudual heats as we get results from total result list
                     continue
-            wind_string = div.select_one('.rightwind').text.strip().replace('Wind:', '').replace(', m/s', '')
-            current_list['winds'] = {}
-            if wind_string:
-                # Parse wind to dict
-                for index_colon, index_space in zip([i for i in findall(':', wind_string)], [i for i in findall(' ', wind_string)]):
-                    if (len(wind_string) <= index_colon+1) or (wind_string[index_colon+1] == ','):
-                        current_list['winds'][wind_string[index_space+1:index_colon]] = ''
-                    else:
-                        current_list['winds'][wind_string[index_space+1:index_colon]] = wind_string[index_colon+1:index_colon+5] if wind_string[index_colon+1] in [
-                            '+', '-'] else wind_string[index_colon+1:index_colon+4]
+                if div.select_one('.blockname'):
+                    if div.select_one('.blockname .leftname').text.strip() in RECORD_TEXTS:
+                        continue
+                wind_string = div.select_one('.rightwind').text.strip().replace('Wind:', '').replace(', m/s', '')
+                current_list['winds'] = {}
+                if wind_string:
+                    # Parse wind to dict
+                    for index_colon, index_space in zip([i for i in findall(':', wind_string)], [i for i in findall(' ', wind_string)]):
+                        if (len(wind_string) <= index_colon+1) or (wind_string[index_colon+1] == ','):
+                            current_list['winds'][wind_string[index_space+1:index_colon]] = ''
+                        else:
+                            current_list['winds'][wind_string[index_space+1:index_colon]] = wind_string[index_colon+1:index_colon+5] if wind_string[index_colon+1] in [
+                                '+', '-'] else wind_string[index_colon+1:index_colon+4]
 
-            has_competitie_teams = True if div.select_one('.resultblock .blockheader .col-2 .secondline').text.strip().lower() == 'team' else False
+                has_competitie_teams = True if div.select_one('.resultblock .blockheader .col-2 .secondline').text.strip().lower() == 'team' else False
 
-            multiple_attempts = False
-            if div.select('.blockheader .col-detailresult'):
-                if re.search("[a-z/A-Z]1", div.select_one('.blockheader .col-detailresult').text.strip()):
-                    multiple_attempts = True
+                multiple_attempts = False
+                if div.select('.blockheader .col-detailresult'):
+                    if re.search("[a-z/A-Z]1", div.select_one('.blockheader .col-detailresult').text.strip()):
+                        multiple_attempts = True
 
-            for line in div.select('.entryline'):
-                bib = line.select_one('.col-1 .secondline').text.strip()
-                if bib in comp['athletes']:
-                    if has_competitie_teams:
-                        comp['athletes'][bib]['team'] = line.select_one('.col-2 .secondline').text.strip() if line.select('.col-2 .secondline') else None
-                    detail = line.select('.col-4 .secondline')[-1].text.strip() if line.select('.col-4 .secondline') else ''
-                    heat = line.select_one('.col-6 .firstline').text.strip().split('/')[-1]
+                for line in div.select('.entryline'):
+                    bib = line.select_one('.col-1 .secondline').text.strip()
+                    if bib in comp['athletes']:
+                        if has_competitie_teams:
+                            comp['athletes'][bib]['team'] = line.select_one('.col-2 .secondline').text.strip() if line.select('.col-2 .secondline') else None
+                        detail = line.select('.col-4 .secondline')[-1].text.strip() if line.select('.col-4 .secondline') else ''
+                        heat = line.select_one('.col-6 .firstline').text.strip().split('/')[-1]
 
-                    if multiple_attempts:
-                        attempts = [{
-                            'result': a.find_next('div').text.strip(),
-                            'wind': a.select_one('.secondline').text.strip().replace('(', '').replace(')', '') if a.select('.secondline') else ''
-                        } for a in line.select('.col-detailresult')]
-                        best_attempt = [{
-                            'result': line.select_one('.col-4 .firstline').text.strip(),
-                            'wind': line.select_one('.col-4 .secondline').text.strip().replace('(', '').replace(')', '')
-                        }]
-                    else:
-                        attempts = ''
-                        best_attempt = {
-                            'result': line.select_one('.col-4 .firstline').text.strip(),
-                            'wind': current_list['winds'][heat] if current_list['winds'] and heat else ''
-                        }
+                        if multiple_attempts:
+                            attempts = [{
+                                'result': a.find_next('div').text.strip(),
+                                'wind': a.select_one('.secondline').text.strip().replace('(', '').replace(')', '') if a.select('.secondline') else ''
+                            } for a in line.select('.col-detailresult')]
+                            best_attempt = [{
+                                'result': line.select_one('.col-4 .firstline').text.strip(),
+                                'wind': line.select_one('.col-4 .secondline').text.strip().replace('(', '').replace(')', '')
+                            }]
+                        else:
+                            attempts = ''
+                            best_attempt = {
+                                'result': line.select_one('.col-4 .firstline').text.strip(),
+                                'wind': current_list['winds'][heat] if current_list['winds'] and heat else ''
+                            }
 
-                    comp['athletes'][bib]['results'].append({
-                        'best_attempt': best_attempt,
-                        'attempts': attempts,
-                        'event': parse_event_name(current_list['raw_name']) + parse_event_detail(detail),
-                        'event_raw': current_list['raw_name'] + parse_event_detail(detail),
-                        'url': current_list['url'],
-                        'date': current_list['date'],
-                    })
-            continue
+                        comp['athletes'][bib]['results'].append({
+                            'best_attempt': best_attempt,
+                            'attempts': attempts,
+                            'event': parse_event_name(current_list['raw_name']) + parse_event_detail(detail),
+                            'event_raw': current_list['raw_name'] + parse_event_detail(detail),
+                            'url': current_list['url'],
+                            'date': current_list['date'],
+                        })
+                continue
 
 
 def cleanup_athletes(comp):
