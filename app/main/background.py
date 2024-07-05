@@ -191,8 +191,9 @@ def get_results_from_xml(comp):
 
 
 def get_all_results(comp):
+    headerFlag = False
     for list in comp['resultlists']:
-        if '4x' in list['raw_name'] or '4 x' in list['raw_name']:  # Skip relays
+        if check_for_match(['3x','3 x','4x', '4 x','5x','5 x','6x', '6 x','7x','7 x','8x', '8 x','9x','9 x','10x', '10 x'], list['raw_name']): #Skip relays
             continue
         page_result = download_html(list['url'])
         content = page_result.select('#seltecdlv>div, #content>div')
@@ -204,7 +205,7 @@ def get_all_results(comp):
             if ('listheader' not in classes) and ('runblock' not in classes):
                 continue
 
-            if 'listheader' in classes:
+            if 'listheader' in classes and not headerFlag:
                 current_list = {}
                 current_list['url'] = list['url']
                 current_list['raw_name'] = div.select_one('.leftheader').text.strip()
@@ -213,7 +214,7 @@ def get_all_results(comp):
                     current_list['date'] = datetime.strftime(datetime.strptime(date_string, "%d.%m.%Y"), '%d-%m-%Y')
                 except:
                     current_list['date'] = ''
-
+                headerFlag = True
                 continue
 
             if 'runblock' in classes:
@@ -327,6 +328,13 @@ def findall(p, s):
     while i != -1:
         yield i
         i = s.find(p, i+1)
+
+
+def check_for_match(check_for: list, check_in: str):
+    for s in check_for:
+        if s in check_in:
+            return True
+    return False
 
 
 def calc_day_difference(startdate_string, enddate_string, format):

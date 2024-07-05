@@ -1,7 +1,7 @@
 from app.main.background import get_competition_info_xml, get_all_results, cleanup_athletes, save_to_file
 
 comp = {
-    'id': 13442,
+    'id': 12546,
     'source': 'html',
     'domain': 'slv.laportal.net'
 }
