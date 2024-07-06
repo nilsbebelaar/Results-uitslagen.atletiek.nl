@@ -191,8 +191,8 @@ def get_results_from_xml(comp):
 
 
 def get_all_results(comp):
-    headerFlag = False
     for list in comp['resultlists']:
+        headerFlag = False
         if check_for_match(['3x','3 x','4x', '4 x','5x','5 x','6x', '6 x','7x','7 x','8x', '8 x','9x','9 x','10x', '10 x'], list['raw_name']): #Skip relays
             continue
         page_result = download_html(list['url'])
