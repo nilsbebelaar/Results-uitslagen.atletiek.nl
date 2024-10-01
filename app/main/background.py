@@ -149,6 +149,8 @@ def get_competition_info_xml(comp):
         page_competition = download_html(comp['url'] + '/' + str(day + 1))
         for block in page_competition.find_all('div', {'class': 'blockcontent'}):
             for a in block.find_all('a'):
+                if not a.has_attr('href'):
+                    continue
                 resultlist = {}
                 resultlist['url'] = 'https://' + comp['domain'] + a['href'].replace('CurrentList', 'ResultList')
                 resultlist['raw_name'] = a.find('div', {'class': 'mainname'}).text.strip()
