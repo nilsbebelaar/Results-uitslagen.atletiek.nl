@@ -229,7 +229,7 @@ def get_all_results(comp):
                 if div.select_one('.blockname'):
                     if div.select_one('.blockname .leftname').text.strip() in RECORD_TEXTS:
                         continue
-                wind_string = div.select_one('.rightwind').text.strip().replace('Wind:', '').replace(', m/s', '')
+                wind_string = div.select_one('.rightwind').text.strip().replace('Wind:', '').replace(', m/s', '') if div.select_one('.rightwind') else None
                 current_list['winds'] = {}
                 if wind_string:
                     # Parse wind to dict
