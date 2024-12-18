@@ -194,7 +194,7 @@ def get_results_from_xml(comp):
 
 def get_all_results(comp):
     for list in comp['resultlists']:
-        if check_for_match(['3x','3 x','4x', '4 x','5x','5 x','6x', '6 x','7x','7 x','8x', '8 x','9x','9 x','10x', '10 x'], list['raw_name']): #Skip relays
+        if check_for_match(['3x', '3 x', '4x', '4 x', '5x', '5 x', '6x', '6 x', '7x', '7 x', '8x', '8 x', '9x', '9 x', '10x', '10 x'], list['raw_name']):  # Skip relays
             continue
         page_result = download_html(list['url'])
         content = page_result.select('#seltecdlv>div, #content>div')
@@ -249,36 +249,54 @@ def get_all_results(comp):
 
                 for line in div.select('.entryline'):
                     bib = line.select_one('.col-1 .secondline').text.strip()
-                    if bib in comp['athletes']:
-                        if has_competitie_teams:
-                            comp['athletes'][bib]['team'] = line.select_one('.col-2 .secondline').text.strip() if line.select('.col-2 .secondline') else None
-                        detail = line.select('.col-4 .secondline')[-1].text.strip() if line.select('.col-4 .secondline') else ''
-                        heat = line.select_one('.col-6 .firstline').text.strip().split('/')[-1]
+                    if bib not in comp['athletes']:
+                        # Athlete wasn't in XML, create new one with random bib
+                        new_bib = '1'
+                        while new_bib in comp['athletes']:
+                            new_bib = str(int(new_bib) + 1)
+                        bib = new_bib
+                        comp['athletes'][bib] = {
+                            'results': [],
+                            'club': line.select_one('.col-2 .secondline').text.strip(),
+                            'country': line.select_one('.col-3 .firstline').text.strip(),
+                            'birthyear': line.select_one('.col-3 .secondline').text.strip(),
+                            'firstname': line.select_one('.col-2 .firstline').text.strip(),
+                            'lastname': '',
+                            'id': None,
+                            'licencenumber': None,
+                            'birthdate': None,
+                            'sex':  'unknown'
+                        }
 
-                        if multiple_attempts:
-                            attempts = [{
-                                'result': a.find_next('div').text.strip(),
-                                'wind': a.select_one('.secondline').text.strip().replace('(', '').replace(')', '') if a.select('.secondline') else ''
-                            } for a in line.select('.col-detailresult')]
-                            best_attempt = [{
-                                'result': line.select_one('.col-4 .firstline').text.strip(),
-                                'wind': line.select_one('.col-4 .secondline').text.strip().replace('(', '').replace(')', '')
-                            }]
-                        else:
-                            attempts = ''
-                            best_attempt = {
-                                'result': line.select_one('.col-4 .firstline').text.strip(),
-                                'wind': current_list['winds'][heat] if current_list['winds'] and heat else ''
-                            }
+                    if has_competitie_teams:
+                        comp['athletes'][bib]['team'] = line.select_one('.col-2 .secondline').text.strip() if line.select('.col-2 .secondline') else None
+                    detail = line.select('.col-4 .secondline')[-1].text.strip() if line.select('.col-4 .secondline') else ''
+                    heat = line.select_one('.col-6 .firstline').text.strip().split('/')[-1]
 
-                        comp['athletes'][bib]['results'].append({
-                            'best_attempt': best_attempt,
-                            'attempts': attempts,
-                            'event': parse_event_name(current_list['raw_name']) + parse_event_detail(detail),
-                            'event_raw': current_list['raw_name'] + parse_event_detail(detail),
-                            'url': current_list['url'],
-                            'date': current_list['date'],
-                        })
+                    if multiple_attempts:
+                        attempts = [{
+                            'result': a.find_next('div').text.strip(),
+                            'wind': a.select_one('.secondline').text.strip().replace('(', '').replace(')', '') if a.select('.secondline') else ''
+                        } for a in line.select('.col-detailresult')]
+                        best_attempt = [{
+                            'result': line.select_one('.col-4 .firstline').text.strip(),
+                            'wind': line.select_one('.col-4 .secondline').text.strip().replace('(', '').replace(')', '')
+                        }]
+                    else:
+                        attempts = ''
+                        best_attempt = {
+                            'result': line.select_one('.col-4 .firstline').text.strip(),
+                            'wind': current_list['winds'][heat] if current_list['winds'] and heat else ''
+                        }
+
+                    comp['athletes'][bib]['results'].append({
+                        'best_attempt': best_attempt,
+                        'attempts': attempts,
+                        'event': parse_event_name(current_list['raw_name']) + parse_event_detail(detail),
+                        'event_raw': current_list['raw_name'] + parse_event_detail(detail),
+                        'url': current_list['url'],
+                        'date': current_list['date'],
+                    })
                 continue
 
 
