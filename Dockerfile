@@ -14,7 +14,7 @@ RUN mkdir database
 COPY start.py config.py boot.sh ./
 RUN chmod +x boot.sh
 
-ENV FLASK_APP start.py
+ENV FLASK_APP=start.py
 
 RUN chown -R uitslagen:uitslagen ./
 USER uitslagen
