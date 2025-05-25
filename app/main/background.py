@@ -17,7 +17,7 @@ RECORD_TEXTS = [
 
 
 def save_to_file(comp):
-    with open(f"app/static/export/{comp['id']}.json", 'w') as outfile:
+    with open(f"app/static/export/{comp['id']}.json", 'w', encoding='utf-8') as outfile:
         outfile.write(json.dumps(comp['athletes'], sort_keys=True, indent=2, ensure_ascii=False))
 
 

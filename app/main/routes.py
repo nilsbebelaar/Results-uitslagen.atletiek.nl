@@ -26,8 +26,13 @@ def index():
             comp['domain'] = 'ergebnisse.leichtathletik.de'
         elif domain == 'LUX':
             comp['domain'] = 'laportal.net'
+        elif domain == 'LUX2':
+            comp['domain'] = 'fla.laportal.net'
         elif domain == 'SUI':
             comp['domain'] = 'slv.laportal.net'
+        else:
+            flash(f'Domain {domain} not supported', 'error')
+            return redirect(url_for('main.index'))
 
         get_competition_info_xml(comp)
         comp['status'] = 'Not downloaded'

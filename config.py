@@ -1,7 +1,8 @@
 ALLOWED_DOMAINS = ['uitslagen.atletiek.nl',
                    'ergebnisse.leichtathletik.de',
                    'laportal.net',
-                   'slv.laportal.net']
+                   'slv.laportal.net',
+                   'fla.laportal.net']
 
 
 class Config:
