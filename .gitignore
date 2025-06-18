@@ -112,7 +112,6 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
 .venv
 env/
 venv/
@@ -152,4 +151,6 @@ cython_debug/
 #.idea/
 
 database
-app/main/test.py
+test.py
+
+.env.keys

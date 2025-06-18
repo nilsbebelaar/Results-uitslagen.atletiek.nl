@@ -19,3 +19,5 @@ coverage.xml
 .pytest_cache
 .hypothesis
 app/static/export/*.json
+
+.env.keys
