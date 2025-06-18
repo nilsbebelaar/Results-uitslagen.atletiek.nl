@@ -6,9 +6,30 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from app.main.categories import code_to_eventname
 from app.models import Competitions
+from config import Config
 
+headers = {
+    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+    'accept-language': 'nl',
+    'cache-control': 'no-cache',
+    'pragma': 'no-cache',
+    'priority': 'u=0, i',
+    'sec-ch-ua': '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"Windows"',
+    'sec-fetch-dest': 'document',
+    'sec-fetch-mode': 'navigate',
+    'sec-fetch-site': 'none',
+    'sec-fetch-user': '?1',
+    'upgrade-insecure-requests': '1',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.3'
+}
 
-headers = {'accept-language': 'nl'}
+proxy = {
+    'http': f"http://{Config.PROXY_USER}:{Config.PROXY_PASS}@{Config.PROXY_DOMAIN}:{Config.PROXY_PORT}/",
+    'https': f"http://{Config.PROXY_USER}:{Config.PROXY_PASS}@{Config.PROXY_DOMAIN}:{Config.PROXY_PORT}/"
+}
+
 cookies = {'culture': 'nl'}
 RECORD_TEXTS = [
     'Records',
@@ -87,17 +108,15 @@ def find_results_xml(comp):
 
 def download_xml(comp):
     comp['url'] = 'https://' + comp['domain'] + '/Competitions/Details/' + str(comp['id'])
-    with requests.session() as s:
-        # XML page with competition information
-        response = s.get(comp['url'] + '/ladvxml', headers=headers, cookies=cookies)
-        xml = xmltodict.parse(response.text, process_namespaces=True)
+    # XML page with competition information
+    response = requests.get(comp['url'] + '/ladvxml', headers=headers, cookies=cookies, proxies=proxy)
+    xml = xmltodict.parse(response.text, process_namespaces=True)
     return xml['meetingresult']
 
 
 def download_html(url):
-    with requests.session() as s:
-        response = s.get(url, headers=headers, cookies=cookies)
-        page_result = BeautifulSoup(response.text, 'html5lib')
+    response = requests.get(url, headers=headers, cookies=cookies, proxies=proxy)
+    page_result = BeautifulSoup(response.text, 'html5lib')
     return page_result
 
 

@@ -1,3 +1,7 @@
+from environs import Env
+env = Env()
+
+
 ALLOWED_DOMAINS = ['uitslagen.atletiek.nl',
                    'ergebnisse.leichtathletik.de',
                    'laportal.net',
@@ -15,6 +19,11 @@ class Config:
 
     STATIC_FOLDER = 'static'
     TEMPLATES_FOLDER = 'templates'
+
+    PROXY_DOMAIN = env('PROXY_DOMAIN')
+    PROXY_PORT = env('PROXY_PORT')
+    PROXY_USER = env('PROXY_USER')
+    PROXY_PASS = env('PROXY_PASS')
 
     import secrets
     SECRET_KEY = secrets.token_hex(64)
