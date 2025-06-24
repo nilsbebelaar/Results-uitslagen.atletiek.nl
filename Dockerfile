@@ -18,10 +18,10 @@ ENV FLASK_APP=start.py
 
 COPY app app
 RUN mkdir database
-COPY start.py config.py .env ./
+COPY start.py config.py .env.production ./
 
 RUN chown -R uitslagen:uitslagen ./
 USER uitslagen
 
 EXPOSE 5000
-CMD ["dotenvx", "run",  "--env-file=.env", "--", "gunicorn", "-b", ":5000", "--timeout", "300", "--access-logfile", "-", "--error-logfile", "-", "start:app", "--worker-class", "gevent"]
+CMD ["dotenvx", "run",  "--env-file=.env.production", "--", "gunicorn", "-b", ":5000", "--timeout", "300", "--access-logfile", "-", "--error-logfile", "-", "start:app", "--worker-class", "gevent"]

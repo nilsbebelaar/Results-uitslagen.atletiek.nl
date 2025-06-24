@@ -1,8 +1,8 @@
 dotenvx run -f .env 
-dotenvx set <key> <value> -f .env
+dotenvx set <key> <value> -f .env.production
 
-dotenvx encrypt -f .env
-dotenvx decrypt -f .env
+dotenvx encrypt -f .env.production
+dotenvx decrypt -f .env.production
 
 
 

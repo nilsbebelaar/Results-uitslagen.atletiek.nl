@@ -153,4 +153,5 @@ cython_debug/
 database
 test.py
 
+.env
 .env.keys
