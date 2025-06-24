@@ -1,6 +1,6 @@
 beautifulsoup4
 lxml
-
+requests-ip-rotator
 requests
 flask
 Flask_SQLAlchemy
