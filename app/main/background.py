@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from app.main.categories import code_to_eventname
 from app.models import Competitions
-from requests_ip_rotator import ApiGateway
+from requests_ip_rotator import ApiGateway, EXTRA_REGIONS
 from requests import Session
 from config import Config
 
@@ -121,7 +121,7 @@ def download_html(url, s: Session):
 
 def get_competition_info_xml(comp):
     https_url = f'https://{comp['domain']}'
-    with ApiGateway(https_url) as g:
+    with ApiGateway(https_url, regions=EXTRA_REGIONS) as g:
         session = Session()
         session.mount(https_url, g)
         xml = download_xml(comp, session)
@@ -182,7 +182,7 @@ def get_competition_info_xml(comp):
 
 def get_results_from_xml(comp):
     https_url = f'https://{comp['domain']}'
-    with ApiGateway(https_url) as g:
+    with ApiGateway(https_url, regions=EXTRA_REGIONS) as g:
         session = Session()
         session.mount(https_url, g)
         xml = download_xml(comp, session)
@@ -222,7 +222,7 @@ def get_results_from_xml(comp):
 
 def get_all_results(comp):
     https_url = f'https://{comp['domain']}'
-    with ApiGateway(https_url) as g:
+    with ApiGateway(https_url, regions=EXTRA_REGIONS) as g:
         session = Session()
         session.mount(https_url, g)
 

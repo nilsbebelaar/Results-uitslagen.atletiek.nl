@@ -1,4 +1,7 @@
-dotenvx run -f .env 
+===== RUN APP =====
+dotenvx run --env-file=.env python test.py
+
+
 dotenvx set <key> <value> -f .env.production
 
 dotenvx encrypt -f .env.production
