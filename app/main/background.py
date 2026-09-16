@@ -51,8 +51,9 @@ def get_session(https_url):
         yield Session()
 
 
-def save_to_file(comp, save_type='athletes'):
-    with open(f"app/static/export/{comp['id']}.json", 'w', encoding='utf-8') as outfile:
+def save_to_file(comp, save_type='athletes', filepath=None):
+    filepath = filepath or f"app/static/export/{comp['id']}.json"
+    with open(filepath, 'w', encoding='utf-8') as outfile:
         if save_type == 'athletes':
             outfile.write(json.dumps(comp['athletes'], sort_keys=True, indent=2, ensure_ascii=False))
         if save_type == 'full_comp':
@@ -220,9 +221,11 @@ def get_competition_info_xml(comp):
                     list_id = a['href'].split('/')[-2]
                     roundtime = a.find('div', {'class': 'roundtime'}).text.strip()
                     starttime = datetime.combine(list_date.date(), datetime.strptime(roundtime, '%H:%M').time())
+                    mainname = a.find('div', {'class': 'mainname'}).text.strip()
+                    typename = a.find('div', {'class': 'typename'}).text.strip().split('(')[0]
                     comp['resultlists'][list_id] = {
                         'url': 'https://' + comp['domain'] + a['href'].replace('CurrentList', 'ResultList'),
-                        'raw_name': a.find('div', {'class': 'mainname'}).text.strip(),
+                        'raw_name': f"{mainname} {typename}",
                         'starttime': starttime.strftime('%Y-%m-%d %H:%M')
                     }
 

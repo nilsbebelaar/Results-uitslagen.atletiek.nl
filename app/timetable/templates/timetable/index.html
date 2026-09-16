@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block header %}
+<p class="title is-1">Timetable</p>
+{% endblock %}
+
+{% block content %}
+<div class="main-column-centered box">
+  <p class="title is-4 has-text-centered">Wedstrijd toevoegen</p>
+  <p class="has-text-centered has-text-grey">Voor het volgen van een tijdschema per rugnummer. Werkt het best voor
+    wedstrijden op uitslagen.atletiek.nl.</p>
+  <hr>
+  <form method="POST" action="{{url_for('timetable.add')}}">
+    <div class="field is-horizontal">
+      <div class="field-label is-normal">
+        <label class="label">Bron</label>
+      </div>
+      <div class="field-body">
+        <div class="field">
+          <div class="control">
+            <div class="select">
+              <select name="source">
+                <option value="NED-html">uitslagen.atletiek.nl (html)</option>
+                <option value="GER-xml">ergebnisse.leichtathletik.de (xml)</option>
+                <option value="GER-html">ergebnisse.leichtathletik.de (html)</option>
+                <option value="LUX-html">laportal.net (html)</option>
+                <option value="SUI-html">slv.laportal.net (html)</option>
+                <option value="LUX2-html">fla.laportal.net (html)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field is-horizontal">
+      <div class="field-label is-normal">
+        <label class="label">ID</label>
+      </div>
+      <div class="field-body">
+        <div class="field">
+          <div class="control">
+            <input class="input" name="ID" required>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-center">
+      <button class="button is-block is-info is-light is-medium">
+        <span class="icon is-medium"><i class="fas fa-plus"></i></span>
+        <span>Toevoegen</span>
+      </button>
+    </div>
+  </form>
+</div>
+
+<div class="home-column-centered">
+  <table class="table is-hoverable competitions is-fullwidth">
+    <thead>
+      <tr>
+        <th class="has-text-centered">Datum</th>
+        <th>Naam</th>
+        <th>Locatie</th>
+        <th class="has-text-centered">Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for comp in comps %}
+      <tr>
+        <td class="has-text-centered">{{comp.date_print}}</td>
+        <td>{{comp.name or comp.id}}</td>
+        <td>{{comp.location or ''}}</td>
+        <td class="has-text-centered">{{comp.status}}</td>
+        <td class="has-text-centered">
+          <a href="{{url_for('timetable.view', id=comp.id)}}" class="button is-info is-light">
+            <span class="icon is-small"><i class="fas fa-table-list"></i></span>
+            <span>Bekijk</span>
+          </a>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="5" class="has-text-centered has-text-grey">Nog geen wedstrijden toegevoegd</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

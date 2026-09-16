@@ -21,11 +21,22 @@ body>section:last-of-type {
 
 .home-column-centered {
     margin: 20px auto;
-    max-width: 800px;
+    max-width: 1200px;
 }
 
 .navbar-item span.icon {
     margin-right: 0.25em;
+}
+
+.navbar-menu {
+    display: flex !important;
+    box-shadow: none;
+}
+
+.navbar-start,
+.navbar-end {
+    display: flex !important;
+    flex-direction: row !important;
 }
 
 .message-column-centered {

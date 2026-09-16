@@ -12,8 +12,10 @@ def init_app():
     with app.app_context():
         from app.main import routes as main_routes
         from app.api import routes as api_routes
+        from app.timetable import routes as timetable_routes
         app.register_blueprint(main_routes.main_bp)
         app.register_blueprint(api_routes.api_bp)
+        app.register_blueprint(timetable_routes.timetable_bp)
         
         db.create_all()
         return app

@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block header %}
+<p class="title is-1">{{comp.name}}</p>
+<p class="subtitle is-6">{{comp.location}} &middot; {{comp.date_print}}</p>
+{% endblock %}
+
+{% block content %}
+<div class="home-column-centered">
+
+  {% if status == 'Loading' %}
+  <div class="notification is-info is-light has-text-centered">
+    Startlijsten worden ververst op de achtergrond. Ververs de pagina over 10 tot 20 seconden voor de laatste stand.
+  </div>
+  {% elif status == 'Error' %}
+  <div class="notification is-warning is-light has-text-centered">
+    Laatste update is mislukt. De onderstaande gegevens zijn mogelijk verouderd.
+  </div>
+  {% endif %}
+
+  <form method="GET" action="{{url_for('timetable.view', id=comp.id)}}" class="field has-addons flex-center">
+    <input type="hidden" name="bibs" value="{{bibs_param}}">
+    <input type="hidden" name="view" value="{{view_mode}}">
+    <div class="control is-expanded">
+      <input class="input" type="text" name="q" placeholder="BIB of naam" value="{{q}}">
+    </div>
+    <div class="control">
+      <button class="button is-info">
+        <span class="icon is-small"><i class="fas fa-search"></i></span>
+        <span>Zoeken</span>
+      </button>
+    </div>
+  </form>
+
+  {% if candidates %}
+  <div class="box">
+    <p class="label">Meerdere atleten gevonden voor '{{q}}':</p>
+    <ul>
+      {% for c in candidates %}
+      <li>
+        <a href="{{url_for('timetable.view', id=comp.id, bibs=c.add_param, view=view_mode)}}">
+          {{c.bib}} - {{c.firstname}} {{c.lastname}} ({{c.club}})
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <div class="level">
+    <div class="level-left">
+      <div class="tabs">
+        <ul>
+          <li class="{% if view_mode == 'time' %}is-active{% endif %}">
+            <a href="{{url_for('timetable.view', id=comp.id, bibs=bibs_param, view='time')}}">Op tijd</a>
+          </li>
+          <li class="{% if view_mode == 'athlete' %}is-active{% endif %}">
+            <a href="{{url_for('timetable.view', id=comp.id, bibs=bibs_param, view='athlete')}}">Op atleet</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="level-right">
+      <a href="{{url_for('timetable.update', id=comp.id, bibs=bibs_param, view=view_mode)}}"
+        class="button is-warning is-light has-tooltip-arrow" data-tooltip="Vernieuw startlijsten">
+        <span class="icon is-small"><i class="fas fa-arrows-rotate"></i></span>
+        <span>Update</span>
+      </a>
+    </div>
+  </div>
+
+  {% if not bibs %}
+  <p class="has-text-centered has-text-grey">Zoek een atleet op BIB of naam om te beginnen.</p>
+  {% elif view_mode == 'athlete' %}
+  {% for group in rows %}
+  <div class="box">
+    <div class="level">
+      <div class="level-left">
+        <p><strong>{{group.bib}} - {{group.name}}</strong> <span class="has-text-grey">({{group.club}})</span></p>
+      </div>
+      <div class="level-right">
+        <a href="{{url_for('timetable.view', id=comp.id, bibs=group.remove_param, view=view_mode)}}"
+          class="has-text-danger has-tooltip-arrow" data-tooltip="Verwijderen">
+          <span class="icon"><i class="fas fa-xmark"></i></span>
+        </a>
+      </div>
+    </div>
+    {% if group.rows %}
+    <table class="table is-fullwidth is-hoverable">
+      <thead>
+        <tr>
+          <th style="width: 50%">Tijd</th>
+          <th style="width: 50%">Onderdeel</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in group.rows %}
+        <tr>
+          <td>{{row.time_display}}
+            {% if row.indicator %}<span class="tag {{row.indicator.css_class}}">{{row.indicator.label}}</span>{% endif %}
+          </td>
+          <td><a href="{{row.url}}" target="_blank">{{row.event}}</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="has-text-grey">Geen startlijsten gevonden</p>
+    {% endif %}
+  </div>
+  {% endfor %}
+  {% else %}
+  <table class="table is-fullwidth is-hoverable">
+    <thead>
+      <tr>
+        <th>Tijd</th>
+        <th>BIB</th>
+        <th>Naam</th>
+        <th>Club</th>
+        <th>Onderdeel</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td>{{row.time_display}}
+          {% if row.indicator %}<span class="tag {{row.indicator.css_class}}">{{row.indicator.label}}</span>{% endif %}
+        </td>
+        <td>{{row.bib}}</td>
+        <td>{{row.name}}</td>
+        <td>{{row.club}}</td>
+        <td><a href="{{row.url}}" target="_blank">{{row.event}}</a></td>
+        <td class="has-text-centered">
+          <a href="{{url_for('timetable.view', id=comp.id, bibs=row.remove_param, view=view_mode)}}"
+            class="has-text-danger has-tooltip-arrow" data-tooltip="Verwijderen">
+            <span class="icon"><i class="fas fa-xmark"></i></span>
+          </a>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="6" class="has-text-centered has-text-grey">Geen startlijsten gevonden voor deze atleten</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+{% endblock %}
