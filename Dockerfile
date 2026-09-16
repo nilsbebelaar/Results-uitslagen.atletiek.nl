@@ -12,6 +12,7 @@ RUN curl -sfS https://dotenvx.sh | sh
 COPY requirements.txt requirements.txt
 RUN pip install gunicorn
 RUN pip install gevent
+RUN pip install packaging
 RUN pip install --no-cache-dir -r requirements.txt
 
 ENV FLASK_APP=start.py
