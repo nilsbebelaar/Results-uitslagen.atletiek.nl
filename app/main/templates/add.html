@@ -87,7 +87,7 @@
     </div>
 
     <label class="label">Gevonden uitslagenlijsten</label>
-    {% for resultlist in comp['resultlists'] %}
+    {% for list_id, resultlist in comp['resultlists'].items() %}
     <p><a href="{{resultlist['url']}}" target="_blank">{{resultlist['raw_name']}}</a></p>
     {% endfor %}
 

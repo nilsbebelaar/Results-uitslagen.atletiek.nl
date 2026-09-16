@@ -1,5 +1,6 @@
 ===== RUN APP =====
 dotenvx run --env-file=.env python test.py
+dotenvx run --env-file=.env python start.py
 
 
 dotenvx set <key> <value> -f .env.production

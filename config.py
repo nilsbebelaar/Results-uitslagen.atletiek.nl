@@ -20,5 +20,7 @@ class Config:
     STATIC_FOLDER = 'static'
     TEMPLATES_FOLDER = 'templates'
 
+    USE_PROXY = env.bool('USE_PROXY', False)
+
     import secrets
     SECRET_KEY = secrets.token_hex(64)
