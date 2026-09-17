@@ -47,15 +47,21 @@
   </div>
   {% endif %}
 
-  <div class="level">
+  <div class="level is-mobile">
     <div class="level-left">
-      <div class="tabs">
+      <div class="tabs is-small">
         <ul>
           <li class="{% if view_mode == 'time' %}is-active{% endif %}">
-            <a href="{{url_for('timetable.view', id=comp.id, bibs=bibs_param, view='time')}}">Op tijd</a>
+            <a href="{{url_for('timetable.view', id=comp.id, bibs=bibs_param, view='time')}}">
+              <span class="icon is-small"><i class="fas fa-clock"></i></span>
+              <span class="is-hidden-mobile">Op tijd</span>
+            </a>
           </li>
           <li class="{% if view_mode == 'athlete' %}is-active{% endif %}">
-            <a href="{{url_for('timetable.view', id=comp.id, bibs=bibs_param, view='athlete')}}">Op atleet</a>
+            <a href="{{url_for('timetable.view', id=comp.id, bibs=bibs_param, view='athlete')}}">
+              <span class="icon is-small"><i class="fas fa-user"></i></span>
+              <span class="is-hidden-mobile">Per atleet</span>
+            </a>
           </li>
         </ul>
       </div>
@@ -64,7 +70,7 @@
       <a href="{{url_for('timetable.update', id=comp.id, bibs=bibs_param, view=view_mode)}}"
         class="button is-warning is-light has-tooltip-arrow" data-tooltip="Vernieuw startlijsten">
         <span class="icon is-small"><i class="fas fa-arrows-rotate"></i></span>
-        <span>Update</span>
+        <span class="is-hidden-mobile">Update</span>
       </a>
     </div>
   </div>
@@ -96,8 +102,8 @@
       <tbody>
         {% for row in group.rows %}
         <tr>
-          <td>{{row.time_display}}
-            {% if row.indicator %}<span class="tag {{row.indicator.css_class}}">{{row.indicator.label}}</span>{% endif %}
+          <td><strong>{{row.date_display}}</strong><br>{{row.time_only}}
+            {% if row.indicator %}<span class="{{row.indicator.css_class}}">{{row.indicator.label}}</span>{% endif %}
           </td>
           <td><a href="{{row.url}}" target="_blank">{{row.event}}</a></td>
         </tr>
@@ -110,7 +116,7 @@
   </div>
   {% endfor %}
   {% else %}
-  <table class="table is-fullwidth is-hoverable">
+  <table class="table is-fullwidth is-hoverable is-hidden-mobile">
     <thead>
       <tr>
         <th>Tijd</th>
@@ -124,8 +130,8 @@
     <tbody>
       {% for row in rows %}
       <tr>
-        <td>{{row.time_display}}
-          {% if row.indicator %}<span class="tag {{row.indicator.css_class}}">{{row.indicator.label}}</span>{% endif %}
+        <td><strong>{{row.date_display}}</strong> {{row.time_only}}
+          {% if row.indicator %}<span class="{{row.indicator.css_class}}">{{row.indicator.label}}</span>{% endif %}
         </td>
         <td>{{row.bib}}</td>
         <td>{{row.name}}</td>
@@ -145,6 +151,31 @@
       {% endfor %}
     </tbody>
   </table>
+
+  <div class="is-hidden-tablet">
+    {% for row in rows %}
+    <div class="mobile-schedule-row">
+      <div class="msr-when">
+        <div><strong>{{row.date_display}}</strong></div>
+        <div>{{row.time_only}}
+          {% if row.indicator %}<span class="{{row.indicator.css_class}}">{{row.indicator.label}}</span>{% endif %}
+        </div>
+      </div>
+      <div class="msr-who">
+        <div><strong>{{row.name}}</strong></div>
+        <div class="has-text-grey is-size-7">{{row.bib}} - {{row.club}}</div>
+      </div>
+      <div class="msr-event"><a href="{{row.url}}" target="_blank">{{row.event}}</a></div>
+      <div class="msr-remove">
+        <a href="{{url_for('timetable.view', id=comp.id, bibs=row.remove_param, view=view_mode)}}" class="has-text-danger">
+          <span class="icon"><i class="fas fa-xmark"></i></span>
+        </a>
+      </div>
+    </div>
+    {% else %}
+    <p class="has-text-centered has-text-grey">Geen startlijsten gevonden voor deze atleten</p>
+    {% endfor %}
+  </div>
   {% endif %}
 </div>
 {% endblock %}

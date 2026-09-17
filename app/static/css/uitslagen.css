@@ -82,3 +82,45 @@ table.competitions td .flag {
 a.has-tooltip-multiline::before {
     width: auto !important;
 }
+
+.level.is-mobile .level-left {
+    flex-shrink: 1;
+    min-width: 0;
+}
+
+.mobile-schedule-row {
+    display: grid;
+    grid-template-columns: auto 1.3fr 1.6fr auto;
+    grid-template-areas:
+        "when who event remove"
+        "when who event .";
+    column-gap: 0.5rem;
+    row-gap: 0.15rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #ededed;
+    align-items: start;
+    font-size: 0.9rem;
+}
+
+.mobile-schedule-row .msr-when,
+.mobile-schedule-row .msr-who,
+.mobile-schedule-row .msr-event {
+    min-width: 0;
+}
+
+.mobile-schedule-row .msr-when {
+    grid-area: when;
+}
+
+.mobile-schedule-row .msr-who {
+    grid-area: who;
+}
+
+.mobile-schedule-row .msr-event {
+    grid-area: event;
+}
+
+.mobile-schedule-row .msr-remove {
+    grid-area: remove;
+    justify-self: end;
+}

@@ -18,28 +18,28 @@ WEEKDAYS = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo']
 MONTHS = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sept', 'okt', 'nov', 'dec']
 
 
-def format_datetime(date_time_str):
-    if not date_time_str:
-        return ''
-    dt = datetime.strptime(date_time_str, '%Y-%m-%d %H:%M')
-    return f"{WEEKDAYS[dt.weekday()]} {dt.day}-{MONTHS[dt.month - 1]} {dt.strftime('%H:%M')}"
+def format_date(dt):
+    return f"{WEEKDAYS[dt.weekday()]} {dt.day}-{MONTHS[dt.month - 1]}"
 
 
-def time_indicator(date_time_str, now=None):
-    if not date_time_str:
-        return None
-    event_time = datetime.strptime(date_time_str, '%Y-%m-%d %H:%M')
+def format_time(dt):
+    return dt.strftime('%H:%M')
+
+
+def format_duration(minutes):
+    minutes = round(minutes)
+    hours, mins = divmod(minutes, 60)
+    return f"{hours}u{mins:02d}m" if hours else f"{mins}m"
+
+
+def time_indicator(event_time, now=None):
     minutes = (event_time - (now or datetime.now())).total_seconds() / 60
 
     if minutes < -10:
         return None
-
     if minutes < 0:
-        return {'label': f"{round(-minutes)} min geleden", 'css_class': 'is-danger'}
-
-    hours, mins = divmod(round(minutes), 60)
-    label = f"over {hours}u {mins:02d}m" if hours else f"over {mins} min"
-    return {'label': label, 'css_class': 'is-danger' if minutes <= 15 else 'is-success'}
+        return {'label': f"+{format_duration(-minutes)}", 'css_class': 'tag is-danger'}
+    return {'label': f"-{format_duration(minutes)}", 'css_class': 'tag is-danger' if minutes <= 15 else 'tag is-success'}
 
 
 def parse_bibs(raw):
@@ -140,20 +140,22 @@ def view(id):
         name = f"{athlete['firstname']} {athlete['lastname']}"
         club = athlete.get('club')
         remove_param = bibs_param(bibs - {athlete['bib']})
-        entries = [
-            {
+        entries = []
+        for sl in athlete.get('startlists', []):
+            date_time = sl.get('date_time')
+            dt = datetime.strptime(date_time, '%Y-%m-%d %H:%M') if date_time else None
+            entries.append({
                 'bib': athlete['bib'],
                 'name': name,
                 'club': club,
                 'event': sl.get('name') or sl.get('name_short'),
-                'time': sl.get('date_time'),
-                'time_display': format_datetime(sl.get('date_time')),
-                'indicator': time_indicator(sl.get('date_time')),
+                'time': date_time,
+                'date_display': format_date(dt) if dt else '',
+                'time_only': format_time(dt) if dt else '',
+                'indicator': time_indicator(dt) if dt else None,
                 'url': sl.get('url'),
                 'remove_param': remove_param,
-            }
-            for sl in athlete.get('startlists', [])
-        ]
+            })
         rows.extend(entries)
         groups.append({
             'bib': athlete['bib'],
