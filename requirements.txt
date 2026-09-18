@@ -8,3 +8,4 @@ environs
 python-dotenv
 xmltodict
 html5lib
+tzdata

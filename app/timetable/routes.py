@@ -1,10 +1,13 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from threading import Thread, Lock
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from app.main.background import get_competition_info_xml, get_registrations, save_to_file
 from app.timetable.storage import load_index, load_comp, schedule_path, update_index_entry, set_status
 
 timetable_bp = Blueprint('timetable', __name__, template_folder='templates', static_folder='static')
+
+AMSTERDAM = ZoneInfo("Europe/Amsterdam")
 
 DOMAINS = {
     'NED': 'uitslagen.atletiek.nl',
@@ -24,6 +27,13 @@ def format_date(dt):
 
 def format_time(dt):
     return dt.strftime('%H:%M')
+
+
+def format_updated_at(iso_str):
+    if not iso_str:
+        return None
+    dt = datetime.fromisoformat(iso_str).astimezone(AMSTERDAM)
+    return f"{format_date(dt)} {format_time(dt)}"
 
 
 def format_duration(minutes):
@@ -79,6 +89,8 @@ def run_pipeline(id, domain, source):
 @timetable_bp.route('/timetable/', methods=['GET'])
 def index():
     index_entries = sorted(load_index().values(), key=lambda c: c.get('date_print') or '', reverse=True)
+    for entry in index_entries:
+        entry['updated_display'] = format_updated_at(entry.get('updated_at'))
     return render_template('timetable/index.html', comps=index_entries)
 
 
@@ -129,6 +141,7 @@ def view(id):
         return redirect(url_for('timetable.index'))
 
     status = entry.get('status') if entry else None
+    updated_display = format_updated_at(entry.get('updated_at')) if entry else None
     athletes = list(comp['athletes'].values())
     bibs = parse_bibs(request.args.get('bibs', ''))
     done = parse_bibs(request.args.get('done', ''))
@@ -209,6 +222,7 @@ def view(id):
         bibs=bibs,
         bibs_param=bibs_param(bibs),
         done_param=bibs_param(done),
+        updated_display=updated_display,
         candidates=candidates,
         q=q,
         status=status,

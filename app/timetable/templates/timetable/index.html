@@ -14,6 +14,7 @@
         <th>Naam</th>
         <th>Locatie</th>
         <th class="has-text-centered">Status</th>
+        <th class="has-text-centered">Laatst bijgewerkt</th>
         <th></th>
       </tr>
     </thead>
@@ -24,6 +25,7 @@
         <td>{{comp.name or comp.id}}</td>
         <td>{{comp.location or ''}}</td>
         <td class="has-text-centered">{{comp.status}}</td>
+        <td class="has-text-centered has-text-grey">{{comp.updated_display or '-'}}</td>
         <td class="has-text-centered">
           <a href="{{url_for('timetable.view', id=comp.id)}}" class="button is-info is-light">
             <span class="icon is-small"><i class="fas fa-table-list"></i></span>
@@ -33,7 +35,7 @@
       </tr>
       {% else %}
       <tr>
-        <td colspan="5" class="has-text-centered has-text-grey">Nog geen wedstrijden toegevoegd</td>
+        <td colspan="6" class="has-text-centered has-text-grey">Nog geen wedstrijden toegevoegd</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -46,6 +48,9 @@
       <div class="mcr-info">
         <div><strong>{{comp.name or comp.id}}</strong></div>
         <div class="has-text-grey is-size-7">{{comp.location or ''}}{% if comp.status %} &middot; {{comp.status}}{% endif %}</div>
+        {% if comp.updated_display %}
+        <div class="has-text-grey is-size-7">Bijgewerkt: {{comp.updated_display}}</div>
+        {% endif %}
       </div>
       <div class="mcr-action">
         <span class="icon has-text-info"><i class="fas fa-table-list"></i></span>

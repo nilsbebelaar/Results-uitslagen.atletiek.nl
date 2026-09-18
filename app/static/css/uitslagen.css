@@ -92,6 +92,14 @@ a.has-tooltip-multiline::before {
     color: inherit;
 }
 
+.done-bg {
+    background-color: rgba(72, 199, 116, 0.12);
+}
+
+tr.done-bg:hover {
+    background-color: rgba(72, 199, 116, 0.18) !important;
+}
+
 .mobile-schedule-row {
     display: grid;
     grid-template-columns: 5.2rem 1.3fr 1.6fr auto;

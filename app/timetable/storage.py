@@ -48,7 +48,6 @@ def set_status(id, status, domain=None, source=None):
         entry['domain'] = domain
     if source:
         entry['source'] = source
-    entry['updated_at'] = datetime.now(timezone.utc).isoformat()
     index[str(id)] = entry
     save_index(index)
 

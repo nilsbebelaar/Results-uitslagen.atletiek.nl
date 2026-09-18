@@ -84,11 +84,15 @@
     </div>
   </div>
 
+  {% if updated_display %}
+  <p class="has-text-right has-text-grey is-size-7">Startlijsten laatst bijgewerkt: {{updated_display}}</p>
+  {% endif %}
+
   {% if not bibs %}
   <p class="has-text-centered has-text-grey">Zoek een atleet op BIB of naam om te beginnen.</p>
   {% elif view_mode == 'athlete' %}
   {% for group in rows %}
-  <div class="box {% if group.is_done %}has-text-grey-light{% endif %}">
+  <div class="box {% if group.is_done %}has-text-grey-light done-bg{% endif %}">
     <div class="level is-mobile">
       <div class="level-left">
         <p><strong>{{group.bib}} - {{group.name}}</strong> <span class="has-text-grey">({{group.club}})</span></p>
@@ -142,7 +146,7 @@
     </thead>
     <tbody>
       {% for row in rows %}
-      <tr class="{% if row.is_done %}has-text-grey-light{% endif %}">
+      <tr class="{% if row.is_done %}has-text-grey-light done-bg{% endif %}">
         <td><strong>{{row.date_display}}</strong> {{row.time_only}}
           {% if row.indicator %}<span class="{{row.indicator.css_class}}">{{row.indicator.label}}</span>{% endif %}
         </td>
@@ -171,7 +175,7 @@
 
   <div class="is-hidden-tablet">
     {% for row in rows %}
-    <div class="mobile-schedule-row {% if row.is_done %}has-text-grey-light{% endif %}">
+    <div class="mobile-schedule-row {% if row.is_done %}has-text-grey-light done-bg{% endif %}">
       <div class="msr-when">
         <div><strong>{{row.date_display}}</strong></div>
         <div>{{row.time_only}}
