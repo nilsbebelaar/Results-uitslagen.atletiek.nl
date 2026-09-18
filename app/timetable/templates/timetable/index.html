@@ -1,14 +1,65 @@
-{% extends "base.html" %}
+{% extends "base_timetable.html" %}
 
 {% block header %}
-<p class="title is-1">Timetable</p>
+<p class="title is-1">ShutterSchedule</p>
+<p class="subtitle is-6 tagline">Mis nooit meer een moment.</p>
 {% endblock %}
 
 {% block content %}
+<div class="home-column-centered">
+  <table class="table is-hoverable competitions is-fullwidth is-hidden-mobile">
+    <thead>
+      <tr>
+        <th class="has-text-centered">Datum</th>
+        <th>Naam</th>
+        <th>Locatie</th>
+        <th class="has-text-centered">Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for comp in comps %}
+      <tr>
+        <td class="has-text-centered">{{comp.date_print}}</td>
+        <td>{{comp.name or comp.id}}</td>
+        <td>{{comp.location or ''}}</td>
+        <td class="has-text-centered">{{comp.status}}</td>
+        <td class="has-text-centered">
+          <a href="{{url_for('timetable.view', id=comp.id)}}" class="button is-info is-light">
+            <span class="icon is-small"><i class="fas fa-table-list"></i></span>
+            <span>Bekijk</span>
+          </a>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="5" class="has-text-centered has-text-grey">Nog geen wedstrijden toegevoegd</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="is-hidden-tablet">
+    {% for comp in comps %}
+    <a href="{{url_for('timetable.view', id=comp.id)}}" class="mobile-competition-row">
+      <div class="mcr-when">{{comp.date_print}}</div>
+      <div class="mcr-info">
+        <div><strong>{{comp.name or comp.id}}</strong></div>
+        <div class="has-text-grey is-size-7">{{comp.location or ''}}{% if comp.status %} &middot; {{comp.status}}{% endif %}</div>
+      </div>
+      <div class="mcr-action">
+        <span class="icon has-text-info"><i class="fas fa-table-list"></i></span>
+      </div>
+    </a>
+    {% else %}
+    <p class="has-text-centered has-text-grey">Nog geen wedstrijden toegevoegd</p>
+    {% endfor %}
+  </div>
+</div>
+
 <div class="main-column-centered box">
   <p class="title is-4 has-text-centered">Wedstrijd toevoegen</p>
-  <p class="has-text-centered has-text-grey">Voor het volgen van een tijdschema per rugnummer. Werkt het best voor
-    wedstrijden op uitslagen.atletiek.nl.</p>
+  <p class="has-text-centered tagline">Jouw atleten. Jouw invalshoek. Op tijd.</p>
   <hr>
   <form method="POST" action="{{url_for('timetable.add')}}">
     <div class="field is-horizontal">
@@ -53,39 +104,5 @@
       </button>
     </div>
   </form>
-</div>
-
-<div class="home-column-centered">
-  <table class="table is-hoverable competitions is-fullwidth">
-    <thead>
-      <tr>
-        <th class="has-text-centered">Datum</th>
-        <th>Naam</th>
-        <th>Locatie</th>
-        <th class="has-text-centered">Status</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for comp in comps %}
-      <tr>
-        <td class="has-text-centered">{{comp.date_print}}</td>
-        <td>{{comp.name or comp.id}}</td>
-        <td>{{comp.location or ''}}</td>
-        <td class="has-text-centered">{{comp.status}}</td>
-        <td class="has-text-centered">
-          <a href="{{url_for('timetable.view', id=comp.id)}}" class="button is-info is-light">
-            <span class="icon is-small"><i class="fas fa-table-list"></i></span>
-            <span>Bekijk</span>
-          </a>
-        </td>
-      </tr>
-      {% else %}
-      <tr>
-        <td colspan="5" class="has-text-centered has-text-grey">Nog geen wedstrijden toegevoegd</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
 </div>
 {% endblock %}

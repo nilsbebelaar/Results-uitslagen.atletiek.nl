@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from threading import Thread
+from threading import Thread, Lock
 from datetime import datetime
 from app.main.background import get_competition_info_xml, get_registrations, save_to_file
 from app.timetable.storage import load_index, load_comp, schedule_path, update_index_entry, set_status
@@ -50,6 +50,18 @@ def bibs_param(bibs):
     return ','.join(sorted(bibs, key=lambda b: (len(b), b)))
 
 
+_updating_lock = Lock()
+_updating_ids = set()
+
+
+def try_start_update(id):
+    with _updating_lock:
+        if id in _updating_ids:
+            return False
+        _updating_ids.add(id)
+        return True
+
+
 def run_pipeline(id, domain, source):
     comp = {'id': id, 'domain': domain, 'source': source}
     try:
@@ -59,6 +71,9 @@ def run_pipeline(id, domain, source):
         update_index_entry(comp, status='Ready')
     except Exception:
         set_status(id, 'Error', domain=domain, source=source)
+    finally:
+        with _updating_lock:
+            _updating_ids.discard(id)
 
 
 @timetable_bp.route('/timetable/', methods=['GET'])
@@ -75,11 +90,12 @@ def add():
 
     domain = DOMAINS.get(domain_code)
     if not domain:
-        flash(f'Domain {domain_code} not supported', 'error')
+        flash(f'Domein {domain_code} wordt niet ondersteund', 'error')
         return redirect(url_for('timetable.index'))
 
-    set_status(id, 'Loading', domain=domain, source=source)
-    Thread(target=run_pipeline, args=(id, domain, source)).start()
+    if try_start_update(str(id)):
+        set_status(id, 'Loading', domain=domain, source=source)
+        Thread(target=run_pipeline, args=(id, domain, source)).start()
 
     return redirect(url_for('timetable.view', id=id))
 
@@ -91,10 +107,14 @@ def update(id):
         flash(f"Wedstrijd '{id}' niet gevonden", 'error')
         return redirect(url_for('timetable.index'))
 
-    set_status(id, 'Loading', domain=entry['domain'], source=entry['source'])
-    Thread(target=run_pipeline, args=(entry['id'], entry['domain'], entry['source'])).start()
+    if try_start_update(str(id)):
+        set_status(id, 'Loading', domain=entry['domain'], source=entry['source'])
+        Thread(target=run_pipeline, args=(entry['id'], entry['domain'], entry['source'])).start()
 
-    return redirect(url_for('timetable.view', id=id, bibs=request.args.get('bibs'), view=request.args.get('view')))
+    return redirect(url_for(
+        'timetable.view', id=id,
+        bibs=request.args.get('bibs'), view=request.args.get('view'), done=request.args.get('done'),
+    ))
 
 
 @timetable_bp.route('/timetable/<id>', methods=['GET'])
@@ -111,6 +131,7 @@ def view(id):
     status = entry.get('status') if entry else None
     athletes = list(comp['athletes'].values())
     bibs = parse_bibs(request.args.get('bibs', ''))
+    done = parse_bibs(request.args.get('done', ''))
     view_mode = request.args.get('view', 'time')
     q = (request.args.get('q') or '').strip()
 
@@ -122,10 +143,10 @@ def view(id):
         ]
         if len(matches) == 1:
             bibs.add(matches[0]['bib'])
-            return redirect(url_for('timetable.view', id=id, bibs=bibs_param(bibs), view=view_mode))
+            return redirect(url_for('timetable.view', id=id, bibs=bibs_param(bibs), view=view_mode, done=bibs_param(done)))
         elif len(matches) == 0:
             flash(f"Geen atleet gevonden voor '{q}'", 'error')
-            return redirect(url_for('timetable.view', id=id, bibs=bibs_param(bibs), view=view_mode))
+            return redirect(url_for('timetable.view', id=id, bibs=bibs_param(bibs), view=view_mode, done=bibs_param(done)))
         else:
             candidates = [
                 {**a, 'add_param': bibs_param(bibs | {a['bib']})}
@@ -139,7 +160,10 @@ def view(id):
     for athlete in selected:
         name = f"{athlete['firstname']} {athlete['lastname']}"
         club = athlete.get('club')
+        is_done = athlete['bib'] in done
         remove_param = bibs_param(bibs - {athlete['bib']})
+        remove_done_param = bibs_param(done - {athlete['bib']})
+        done_param = bibs_param(done ^ {athlete['bib']})
         entries = []
         for sl in athlete.get('startlists', []):
             date_time = sl.get('date_time')
@@ -148,6 +172,7 @@ def view(id):
                 'bib': athlete['bib'],
                 'name': name,
                 'club': club,
+                'is_done': is_done,
                 'event': sl.get('name') or sl.get('name_short'),
                 'time': date_time,
                 'date_display': format_date(dt) if dt else '',
@@ -155,14 +180,19 @@ def view(id):
                 'indicator': time_indicator(dt) if dt else None,
                 'url': sl.get('url'),
                 'remove_param': remove_param,
+                'remove_done_param': remove_done_param,
+                'done_param': done_param,
             })
         rows.extend(entries)
         groups.append({
             'bib': athlete['bib'],
             'name': name,
             'club': club,
+            'is_done': is_done,
             'rows': sorted(entries, key=lambda r: r['time'] or ''),
             'remove_param': remove_param,
+            'remove_done_param': remove_done_param,
+            'done_param': done_param,
         })
 
     if view_mode == 'athlete':
@@ -178,6 +208,7 @@ def view(id):
         view_mode=view_mode,
         bibs=bibs,
         bibs_param=bibs_param(bibs),
+        done_param=bibs_param(done),
         candidates=candidates,
         q=q,
         status=status,

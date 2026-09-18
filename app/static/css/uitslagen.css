@@ -88,11 +88,15 @@ a.has-tooltip-multiline::before {
     min-width: 0;
 }
 
+.has-text-grey-light strong {
+    color: inherit;
+}
+
 .mobile-schedule-row {
     display: grid;
-    grid-template-columns: auto 1.3fr 1.6fr auto;
+    grid-template-columns: 5.2rem 1.3fr 1.6fr auto;
     grid-template-areas:
-        "when who event remove"
+        "when who event actions"
         "when who event .";
     column-gap: 0.5rem;
     row-gap: 0.15rem;
@@ -120,7 +124,26 @@ a.has-tooltip-multiline::before {
     grid-area: event;
 }
 
-.mobile-schedule-row .msr-remove {
-    grid-area: remove;
+.mobile-schedule-row .msr-actions {
+    grid-area: actions;
     justify-self: end;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.mobile-competition-row {
+    display: grid;
+    grid-template-columns: 7rem 1fr auto;
+    column-gap: 0.5rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #ededed;
+    align-items: center;
+    font-size: 0.9rem;
+    color: inherit;
+    text-decoration: none;
+}
+
+.mobile-competition-row .mcr-when,
+.mobile-competition-row .mcr-info {
+    min-width: 0;
 }
