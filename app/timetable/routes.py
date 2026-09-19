@@ -43,7 +43,8 @@ def format_duration(minutes):
 
 
 def time_indicator(event_time, now=None):
-    minutes = (event_time - (now or datetime.now())).total_seconds() / 60
+    event_time = event_time.replace(tzinfo=AMSTERDAM)
+    minutes = (event_time - (now or datetime.now(AMSTERDAM))).total_seconds() / 60
 
     if minutes < -10:
         return None
