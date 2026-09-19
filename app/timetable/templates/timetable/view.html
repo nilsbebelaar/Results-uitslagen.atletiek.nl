@@ -22,7 +22,7 @@
   <form method="GET" action="{{url_for('timetable.view', id=comp.id)}}" class="field has-addons flex-center">
     <input type="hidden" name="bibs" value="{{bibs_param}}">
     <input type="hidden" name="view" value="{{view_mode}}">
-    <input type="hidden" name="done" value="{{done_param}}">
+    <input type="hidden" name="done" value="{{done_param}}" class="js-done-input">
     <div class="control is-expanded">
       <input class="input" type="text" name="q" placeholder="BIB of naam" value="{{q}}">
     </div>
@@ -54,13 +54,13 @@
       <div class="tabs is-small">
         <ul>
           <li class="{% if view_mode == 'time' %}is-active{% endif %}">
-            <a href="{{url_for('timetable.view', id=comp.id, bibs=bibs_param, view='time', done=done_param)}}">
+            <a class="js-done-carrier" href="{{url_for('timetable.view', id=comp.id, bibs=bibs_param, view='time', done=done_param)}}">
               <span class="icon is-small"><i class="fas fa-clock"></i></span>
               <span class="is-hidden-mobile">Op tijd</span>
             </a>
           </li>
           <li class="{% if view_mode == 'athlete' %}is-active{% endif %}">
-            <a href="{{url_for('timetable.view', id=comp.id, bibs=bibs_param, view='athlete', done=done_param)}}">
+            <a class="js-done-carrier" href="{{url_for('timetable.view', id=comp.id, bibs=bibs_param, view='athlete', done=done_param)}}">
               <span class="icon is-small"><i class="fas fa-user"></i></span>
               <span class="is-hidden-mobile">Per atleet</span>
             </a>
@@ -76,7 +76,7 @@
       </button>
       {% else %}
       <a href="{{url_for('timetable.update', id=comp.id, bibs=bibs_param, view=view_mode, done=done_param)}}"
-        class="button is-warning is-light has-tooltip-arrow" data-tooltip="Vernieuw startlijsten">
+        class="js-done-carrier button is-warning is-light has-tooltip-arrow" data-tooltip="Vernieuw startlijsten">
         <span class="icon is-small"><i class="fas fa-arrows-rotate"></i></span>
         <span class="is-hidden-mobile">Vernieuwen</span>
       </a>
@@ -92,18 +92,19 @@
   <p class="has-text-centered has-text-grey">Zoek een atleet op BIB of naam om te beginnen.</p>
   {% elif view_mode == 'athlete' %}
   {% for group in rows %}
-  <div class="box {% if group.is_done %}has-text-grey-light done-bg{% endif %}">
+  <div class="box js-row {% if group.is_done %}has-text-grey-light done-bg{% endif %}" data-bib="{{group.bib}}">
     <div class="level is-mobile">
       <div class="level-left">
         <p><strong>{{group.bib}} - {{group.name}}</strong> <span class="has-text-grey">({{group.club}})</span></p>
       </div>
       <div class="level-right">
         <a href="{{url_for('timetable.view', id=comp.id, bibs=bibs_param, view=view_mode, done=group.done_param)}}"
-          class="{% if group.is_done %}has-text-success{% else %}has-text-grey-light{% endif %} has-tooltip-arrow" data-tooltip="Klaar/niet klaar">
+          class="js-toggle-done {% if group.is_done %}has-text-success{% else %}has-text-grey-light{% endif %} has-tooltip-arrow"
+          data-bib="{{group.bib}}" data-tooltip="Klaar/niet klaar">
           <span class="icon"><i class="fas fa-{% if group.is_done %}square-check{% else %}square{% endif %}"></i></span>
         </a>
         <a href="{{url_for('timetable.view', id=comp.id, bibs=group.remove_param, view=view_mode, done=group.remove_done_param)}}"
-          class="has-text-danger has-tooltip-arrow" data-tooltip="Verwijderen">
+          class="js-remove-link has-text-danger has-tooltip-arrow" data-bib="{{group.bib}}" data-tooltip="Verwijderen">
           <span class="icon"><i class="fas fa-xmark"></i></span>
         </a>
       </div>
@@ -146,7 +147,7 @@
     </thead>
     <tbody>
       {% for row in rows %}
-      <tr class="{% if row.is_done %}has-text-grey-light done-bg{% endif %}">
+      <tr class="js-row {% if row.is_done %}has-text-grey-light done-bg{% endif %}" data-bib="{{row.bib}}">
         <td><strong>{{row.date_display}}</strong> {{row.time_only}}
           {% if row.indicator %}<span class="{{row.indicator.css_class}}">{{row.indicator.label}}</span>{% endif %}
         </td>
@@ -156,11 +157,12 @@
         <td><a href="{{row.url}}" target="_blank">{{row.event}}</a></td>
         <td class="has-text-centered">
           <a href="{{url_for('timetable.view', id=comp.id, bibs=bibs_param, view=view_mode, done=row.done_param)}}"
-            class="{% if row.is_done %}has-text-success{% else %}has-text-grey-light{% endif %} has-tooltip-arrow" data-tooltip="Klaar/niet klaar">
+            class="js-toggle-done {% if row.is_done %}has-text-success{% else %}has-text-grey-light{% endif %} has-tooltip-arrow"
+            data-bib="{{row.bib}}" data-tooltip="Klaar/niet klaar">
             <span class="icon"><i class="fas fa-{% if row.is_done %}square-check{% else %}square{% endif %}"></i></span>
           </a>
           <a href="{{url_for('timetable.view', id=comp.id, bibs=row.remove_param, view=view_mode, done=row.remove_done_param)}}"
-            class="has-text-danger has-tooltip-arrow" data-tooltip="Verwijderen">
+            class="js-remove-link has-text-danger has-tooltip-arrow" data-bib="{{row.bib}}" data-tooltip="Verwijderen">
             <span class="icon"><i class="fas fa-xmark"></i></span>
           </a>
         </td>
@@ -175,7 +177,7 @@
 
   <div class="is-hidden-tablet">
     {% for row in rows %}
-    <div class="mobile-schedule-row {% if row.is_done %}has-text-grey-light done-bg{% endif %}">
+    <div class="mobile-schedule-row js-row {% if row.is_done %}has-text-grey-light done-bg{% endif %}" data-bib="{{row.bib}}">
       <div class="msr-when">
         <div><strong>{{row.date_display}}</strong></div>
         <div>{{row.time_only}}
@@ -184,15 +186,16 @@
       </div>
       <div class="msr-who">
         <div><strong>{{row.name}}</strong></div>
-        <div class="{% if not row.is_done %}has-text-grey{% endif %} is-size-7">{{row.bib}} - {{row.club}}</div>
+        <div class="js-who-meta {% if not row.is_done %}has-text-grey{% endif %} is-size-7" data-bib="{{row.bib}}">{{row.bib}} - {{row.club}}</div>
       </div>
       <div class="msr-event"><a href="{{row.url}}" target="_blank">{{row.event}}</a></div>
       <div class="msr-actions">
         <a href="{{url_for('timetable.view', id=comp.id, bibs=bibs_param, view=view_mode, done=row.done_param)}}"
-          class="{% if row.is_done %}has-text-success{% else %}has-text-grey-light{% endif %}">
+          class="js-toggle-done {% if row.is_done %}has-text-success{% else %}has-text-grey-light{% endif %}" data-bib="{{row.bib}}">
           <span class="icon"><i class="fas fa-{% if row.is_done %}square-check{% else %}square{% endif %}"></i></span>
         </a>
-        <a href="{{url_for('timetable.view', id=comp.id, bibs=row.remove_param, view=view_mode, done=row.remove_done_param)}}" class="has-text-danger">
+        <a href="{{url_for('timetable.view', id=comp.id, bibs=row.remove_param, view=view_mode, done=row.remove_done_param)}}"
+          class="js-remove-link has-text-danger" data-bib="{{row.bib}}">
           <span class="icon"><i class="fas fa-xmark"></i></span>
         </a>
       </div>
@@ -203,4 +206,5 @@
   </div>
   {% endif %}
 </div>
+<script src="/static/js/timetable-done.js"></script>
 {% endblock %}
