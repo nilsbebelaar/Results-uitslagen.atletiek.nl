@@ -3,7 +3,7 @@ from threading import Thread, Lock
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from app.main.background import get_competition_info_xml, get_registrations, save_to_file
-from app.timetable.storage import load_index, load_comp, schedule_path, update_index_entry, set_status
+from app.timetable.storage import load_index, load_comp, schedule_path, update_index_entry, set_status, set_progress
 
 timetable_bp = Blueprint('timetable', __name__, template_folder='templates', static_folder='static')
 
@@ -77,10 +77,12 @@ def run_pipeline(id, domain, source):
     comp = {'id': id, 'domain': domain, 'source': source}
     try:
         get_competition_info_xml(comp)
-        get_registrations(comp)
+        get_registrations(comp, load_every_list=True, on_progress=lambda cur, total: set_progress(id, cur, total))
         save_to_file(comp, save_type='full_comp', filepath=schedule_path(comp['id']))
         update_index_entry(comp, status='Ready')
     except Exception:
+        import traceback
+        traceback.print_exc()
         set_status(id, 'Error', domain=domain, source=source)
     finally:
         with _updating_lock:
@@ -130,6 +132,14 @@ def update(id):
     ))
 
 
+def format_progress(progress):
+    if not progress or not progress.get('total'):
+        return None
+    current, total = progress['current'], progress['total']
+    percent = round(current / total * 100)
+    return {"percent": percent, "current": current, "total": total}
+
+
 @timetable_bp.route('/timetable/<id>', methods=['GET'])
 def view(id):
     entry = load_index().get(str(id))
@@ -137,11 +147,12 @@ def view(id):
 
     if not comp:
         if entry and entry.get('status') == 'Loading':
-            return render_template('timetable/loading.html', id=id)
+            return render_template('timetable/loading.html', id=id, progress_display=format_progress(entry.get('progress')))
         flash(f"Wedstrijd '{id}' niet gevonden", 'error')
         return redirect(url_for('timetable.index'))
 
     status = entry.get('status') if entry else None
+    progress_display = format_progress(entry.get('progress')) if entry else None
     updated_display = format_updated_at(entry.get('updated_at')) if entry else None
     athletes = list(comp['athletes'].values())
     bibs = parse_bibs(request.args.get('bibs', ''))
@@ -224,6 +235,7 @@ def view(id):
         bibs_param=bibs_param(bibs),
         done_param=bibs_param(done),
         updated_display=updated_display,
+        progress_display=progress_display,
         candidates=candidates,
         q=q,
         status=status,

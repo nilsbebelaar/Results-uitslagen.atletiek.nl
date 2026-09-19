@@ -7,7 +7,7 @@
 
 {% block content %}
 <div class="main-column-centered box has-text-centered">
-  <p>Wedstrijd '{{id}}' wordt opgehaald. Dit kan 10 tot 20 seconden duren.</p>
+  <p>Wedstrijd '{{id}}' wordt opgehaald{% if progress_display %} ({{progress_display}}){% endif %}. Dit kan 10 tot 20 seconden duren.</p>
   <hr>
   <a href="{{url_for('timetable.view', id=id)}}" class="button is-info is-light">
     <span class="icon is-small"><i class="fas fa-arrows-rotate"></i></span>

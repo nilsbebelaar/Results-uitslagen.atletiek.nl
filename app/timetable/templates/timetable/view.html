@@ -11,7 +11,8 @@
 
   {% if status == 'Loading' %}
   <div class="notification is-info is-light has-text-centered">
-    Startlijsten worden ververst op de achtergrond. Ververs de pagina over 10 tot 20 seconden voor de laatste stand.
+    Startlijsten worden ververst op de achtergrond{% if progress_display %} <b>{{progress_display["percent"]}}%</b> (lijst {{progress_display["current"]}}/{{progress_display["total"]}}){% endif %}.<br/>
+    Dit kan even duren bij grotere wedstrijden.
   </div>
   {% elif status == 'Error' %}
   <div class="notification is-warning is-light has-text-centered">

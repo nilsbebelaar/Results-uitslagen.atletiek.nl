@@ -10,7 +10,7 @@ from app.main.categories import code_to_eventname
 from app.models import Competitions
 from requests_ip_rotator import ApiGateway, EXTRA_REGIONS
 from requests import Session, HTTPError
-from requests.exceptions import SSLError
+from requests.exceptions import SSLError, RequestException
 from config import Config
 
 headers = {
@@ -132,7 +132,7 @@ def download_xml(comp, s: Session):
             raise TimeoutError
         attempt += 1
         try:
-            response = s.get(comp['url'] + '/ladvxml', headers=headers, cookies=cookies)
+            response = s.get(comp['url'] + '/ladvxml', headers=headers, cookies=cookies, timeout=30)
             response.raise_for_status()
             xml = xmltodict.parse(response.text, process_namespaces=True)
             return xml['meetingresult']
@@ -141,6 +141,8 @@ def download_xml(comp, s: Session):
             print("GET error: ", e)
         except ExpatError as e:
             print("XML Error:", errors.messages[e.code])
+        except RequestException as e:
+            print("Request error: ", e)
 
 
 def download_html(url, s: Session):
@@ -150,9 +152,8 @@ def download_html(url, s: Session):
             raise TimeoutError
         attempt += 1
         try:
-            print("HTML Request: ", url)
-            response = s.get(url, headers=headers, cookies=cookies)
-            # print("HTML Request: ", response.status_code, response.text[:100], response.text[1000:1200])
+            # print("HTML Request: ", url)
+            response = s.get(url, headers=headers, cookies=cookies, timeout=30)
             response.raise_for_status()
             page_result = BeautifulSoup(response.text, 'html5lib')
             return page_result
@@ -161,6 +162,8 @@ def download_html(url, s: Session):
             print("GET error: ", e)
         except SSLError as e:
             print("SSL error: ", e)
+        except RequestException as e:
+            print("Request error: ", e)
 
 
 def get_competition_info_xml(comp):
@@ -268,56 +271,71 @@ def get_results_from_xml(comp):
         })
 
 
-def get_registrations(comp):
+def get_registrations(comp, load_every_list=False, on_progress=None):
     https_url = f'https://{comp['domain']}'
+    if load_every_list:
+        url_list = [l['url'].replace('ResultList', 'RegisterList') for l in comp['resultlists'].values()]
+    else:
+        url_list = [f"{https_url}/Competitions/Competitoroverview/{comp['id']}"]
+
+    athletes_by_bib = {}
+    athletes_with_no_bib = []
+
+    for a in comp['athletes'].values():
+        if a['bib'] == "-1":
+            athletes_with_no_bib.append(a)
+        else:
+            athletes_by_bib[a['bib']] = a['id']
+
+    total = len(url_list)
     with get_session(https_url) as session:
-        page_result = download_html(f"{https_url}/Competitions/Competitoroverview/{comp['id']}", session)
-        content = page_result.select('#seltecdlv>div, #content>div')
+        for i, url in enumerate(url_list, start=1):
+            if on_progress:
+                on_progress(i, total)
+            page_result = download_html(url, session)
+            content = page_result.select('#seltecdlv>div.registerblock, #content>div.registerblock')
 
-        athletes_by_bib = {}
-        athletes_with_no_bib = []
+            for div in content:
+                for line in div.select('.entryline'):
+                    bib = line.select_one('.col-1 .firstline').text.strip()
+                    fullname = line.select_one('.col-2 .firstline').text.strip()
 
-        for a in comp['athletes'].values():
-            if a['bib'] == "-1":
-                athletes_with_no_bib.append(a)
-            else:
-                athletes_by_bib[a['bib']] = a['id']
+                    athlete_id = athletes_by_bib.get(bib)
+                    if athlete_id is None:
+                        for a in athletes_with_no_bib:
+                            if a['firstname'].split()[0] == fullname.split()[0] and a['lastname'].split()[-1] == fullname.split()[-1]:
+                                athlete_id = a['id']
+                                break
+                    if not athlete_id:
+                        continue
 
-        for div in content:
-            for line in div.select('.entryline'):
-                bib = line.select_one('.col-1 .firstline').text.strip()
-                fullname = line.select_one('.col-2 .firstline').text.strip()
-                club = line.select_one('.col-2 .secondline').text.strip()
-                country = line.select_one('.col-42p .firstline').text.strip()
-                birthyear = line.select_one('.col-42p .secondline').text.strip()
+                    if load_every_list:
+                        list_id = url.split('/')[-2]
+                        short_name = ""
+                        list_url = url
+                    else:
+                        col_last = line.select_one('.col-last')
+                        if not col_last:
+                            continue
 
-                athlete_id = athletes_by_bib.get(bib)
-                if athlete_id is None:
-                    for a in athletes_with_no_bib:
-                        if a['firstname'].split()[0] == fullname.split()[0] and a['lastname'].split()[-1] == fullname.split()[-1]:
-                            athlete_id = a['id']
-                            break
-
-                if not athlete_id:
-                    continue
-
-                for a in line.select_one('.col-last').find_all('a'):
-                    list_url = ('https://' + comp['domain'] + a['href']).replace('CurrentList', 'RegisterList')
-                    list_id = a['href'].split('/')[-2]
+                        for a in col_last.find_all('a'):
+                            list_url = ('https://' + comp['domain'] + a['href']).replace('CurrentList', 'RegisterList')
+                            list_id = a['href'].split('/')[-2]
+                            short_name = a.text.strip()
 
                     resultlist = comp['resultlists'].get(list_id)
-
                     if resultlist:
                         comp['athletes'][athlete_id]['startlists'].append({
                             'list_id': list_id,
-                            'name_short': a.text.strip(),
+                            'name_short': short_name,
                             'name': resultlist['raw_name'],
                             'url': list_url,
                             'date_time': resultlist['starttime'],
                         })
+                        continue
                     else:
                         print(f"List not found! {list_id}, {list_url}")
-            continue
+        print('Done Listing!', url)
 
 
 def get_all_results(comp):
@@ -331,7 +349,7 @@ def get_all_results(comp):
 
             athletes_by_bib = {}
             athletes_with_no_bib = []
-    
+
             for a in comp['athletes'].values():
                 if a['bib'] == "-1":
                     athletes_with_no_bib.append(a)
@@ -395,7 +413,7 @@ def get_all_results(comp):
                                 if a['firstname'].split()[0] == fullname.split()[0] and a['lastname'].split()[-1] == fullname.split()[-1]:
                                     athlete_id = a['id']
                                     break
-        
+
                         if not athlete_id:
                             continue
 
