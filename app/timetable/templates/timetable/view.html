@@ -122,7 +122,7 @@
         {% for row in group.rows %}
         <tr>
           <td><strong>{{row.date_display}}</strong><br>{{row.time_only}}
-            {% if row.indicator %}<span class="{{row.indicator.css_class}}">{{row.indicator.label}}</span>{% endif %}
+            <span class="js-eta" data-event-time="{{row.time or ''}}">{% if row.indicator %}<span class="{{row.indicator.css_class}}">{{row.indicator.label}}</span>{% endif %}</span>
           </td>
           <td><a href="{{row.url}}" target="_blank">{{row.event}}</a></td>
         </tr>
@@ -150,7 +150,7 @@
       {% for row in rows %}
       <tr class="js-row {% if row.is_done %}has-text-grey-light done-bg{% endif %}" data-bib="{{row.bib}}">
         <td><strong>{{row.date_display}}</strong> {{row.time_only}}
-          {% if row.indicator %}<span class="{{row.indicator.css_class}}">{{row.indicator.label}}</span>{% endif %}
+          <span class="js-eta" data-event-time="{{row.time or ''}}">{% if row.indicator %}<span class="{{row.indicator.css_class}}">{{row.indicator.label}}</span>{% endif %}</span>
         </td>
         <td>{{row.bib}}</td>
         <td>{{row.name}}</td>
@@ -182,7 +182,7 @@
       <div class="msr-when">
         <div><strong>{{row.date_display}}</strong></div>
         <div>{{row.time_only}}
-          {% if row.indicator %}<span class="{{row.indicator.css_class}}">{{row.indicator.label}}</span>{% endif %}
+          <span class="js-eta" data-event-time="{{row.time or ''}}">{% if row.indicator %}<span class="{{row.indicator.css_class}}">{{row.indicator.label}}</span>{% endif %}</span>
         </div>
       </div>
       <div class="msr-who">
@@ -208,4 +208,5 @@
   {% endif %}
 </div>
 <script src="/static/js/timetable-done.js"></script>
+<script src="/static/js/timetable-eta.js"></script>
 {% endblock %}
